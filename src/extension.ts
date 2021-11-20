@@ -6,9 +6,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	const cloudflared = new CloudflaredClient(context);
 	await cloudflared.setUp();
 
-	const version = vscode.commands.registerCommand('cloudflaretunnel.version', () => {
-		const version = cloudflared.version();
-		const message = `Cloudflared version: ${version}`;
+	const version = vscode.commands.registerCommand('cloudflaretunnel.version', async () => {
+		const message = await cloudflared.version();
 		vscode.window.showInformationMessage(message);
 	});
 

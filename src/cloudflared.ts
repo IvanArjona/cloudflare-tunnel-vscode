@@ -49,7 +49,7 @@ export class CloudflaredClient {
       return executable;
     }
 
-    async cmd(args: string[]) {
+    async cmd(args: string[]): Promise<string> {
         const command = [this.executable].concat(args).join(" ");
         // this.terminal.sendText(command);
         try {
@@ -61,9 +61,8 @@ export class CloudflaredClient {
         }
     }
 
-    version() {
-        const response = this.cmd(["--version"]);
-        console.log(response);
+    async version(): Promise<string> {
+        return await this.cmd(["--version"]);
     }
 
     start(port: number) {
