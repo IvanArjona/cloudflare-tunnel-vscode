@@ -10,7 +10,7 @@ const fs = require('fs');
 
 export class CloudflaredClient {
     context: vscode.ExtensionContext;
-    executable: string = "";
+    cloudflaredUri!: vscode.Uri;
     terminal: vscode.Terminal;
 
     constructor(context: vscode.ExtensionContext) {
@@ -19,7 +19,7 @@ export class CloudflaredClient {
     }
 
     async setUp() {
-        this.executable = await this.getExecutable();
+        this.cloudflaredUri = await this.getExecutable();
     }
 
     private createTerminal(): vscode.Terminal {
@@ -31,26 +31,29 @@ export class CloudflaredClient {
         return terminal;
     }
 
-    async download(fileName: string) {
-        const remotePath = vscode.Uri.parse(`https://github.com/cloudflare/cloudflared/releases/latest/download/${fileName}`);
-        const fileDownloader: FileDownloader = await getApi();
-        const downloadedFile: vscode.Uri = await fileDownloader.downloadFile(remotePath, 'cloudflared', this.context);
-        return downloadedFile;
-    }
-
-    private async getExecutable(): Promise<string> {
-        const localPath = "C:\\Users\\ivany\\Downloads";
+    async download(): Promise<vscode.Uri> {
         const arch = os.arch().replace('x', 'amd');
         const fileName = os.type() === 'Windows_NT' ? `cloudflared-windows-${arch}.exe` : `cloudflared-linux-${arch}`;
-        const executable = `${localPath}\\${fileName}`;
-        if (fs.existsSync(executable)) {
-            await this.download(fileName);
+        const remotePath = vscode.Uri.parse(`https://github.com/cloudflare/cloudflared/releases/latest/download/${fileName}`);
+
+        const fileDownloader: FileDownloader = await getApi();
+        return await fileDownloader.downloadFile(remotePath, fileName, this.context);
+    }
+
+    private async getExecutable(): Promise<vscode.Uri> {
+        let uri = this.context.globalState.get<vscode.Uri>('cloudflaredUri');
+        if (uri && fs.existsSync(uri)) {
+            return uri;
         }
-      return executable;
+
+        uri = await this.download();
+        this.context.globalState.update('cloudflaredUri', uri);
+        return uri;
     }
 
     async cmd(args: string[]): Promise<string> {
-        const command = [this.executable].concat(args).join(" ");
+        const path = this.cloudflaredUri.fsPath;
+        const command = [path].concat(args).join(" ");
         // this.terminal.sendText(command);
         try {
             const { stdout } = await execProm(command);
