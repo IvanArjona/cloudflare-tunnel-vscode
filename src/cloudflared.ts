@@ -75,4 +75,8 @@ export class CloudflaredClient {
         });
     }
 
+    async isRunning(): Promise<boolean> {
+        return this.runProcess && !this.runProcess.killed;
+    }
+
 }

@@ -30,8 +30,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	const isRunning = vscode.commands.registerCommand('cloudflaretunnel.isRunning', async () => {
+		const isRunningResponse = await cloudflared.isRunning();
+		const message = `Cloudflare tunnel is${isRunningResponse ? '' : ' not'} running`;
+		vscode.window.showInformationMessage(message);
+	});
+
 	context.subscriptions.push(version);
 	context.subscriptions.push(start);
+	context.subscriptions.push(isRunning);
 }
 
 // this method is called when your extension is deactivated

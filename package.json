@@ -12,7 +12,8 @@
   "activationEvents": [
     "*",
     "onCommand:cloudflaretunnel.version",
-    "onCommand:cloudflaretunnel.start"
+    "onCommand:cloudflaretunnel.start",
+    "onCommand:cloudflaretunnel.isRunning"
   ],
   "extensionDependencies": [
     "mindaro-dev.file-downloader"
@@ -27,6 +28,10 @@
       {
         "command": "cloudflaretunnel.start",
         "title": "Start Cloudflare Tunnel"
+      },
+      {
+        "command": "cloudflaretunnel.isRunning",
+        "title": "Is Cloudflare Tunnel running?"
       }
     ]
   },
