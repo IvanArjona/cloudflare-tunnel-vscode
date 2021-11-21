@@ -19,6 +19,7 @@
     "type": "git",
     "url": "https://github.com/IvanArjona/cloudflare-tunnel-vscode.git"
   },
+  "icon": "images/icon.png",
   "categories": [
     "Other"
   ],
