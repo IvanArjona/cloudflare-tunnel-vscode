@@ -1,43 +1,16 @@
 import * as vscode from 'vscode';
-import { getApi, FileDownloader } from "@microsoft/vscode-file-downloader-api";
 import { ChildProcess, execFileSync, spawn } from 'child_process';
 
-const os = require('os');
-const fs = require('fs');
 
+abstract class ExecutableClient {
+    uri: vscode.Uri;
 
-export class CloudflaredClient {
-    context!: vscode.ExtensionContext;
-    cloudflaredUri!: vscode.Uri;
-    runProcess!: ChildProcess;
-
-    async setUp(context: vscode.ExtensionContext) {
-        this.context = context;
-        this.cloudflaredUri = await this.getExecutable();
-    }
-
-    async download(): Promise<vscode.Uri> {
-        const arch = os.arch().replace('x', 'amd');
-        const fileName = os.type() === 'Windows_NT' ? `cloudflared-windows-${arch}.exe` : `cloudflared-linux-${arch}`;
-        const remotePath = vscode.Uri.parse(`https://github.com/cloudflare/cloudflared/releases/latest/download/${fileName}`);
-
-        const fileDownloader: FileDownloader = await getApi();
-        return await fileDownloader.downloadFile(remotePath, fileName, this.context);
-    }
-
-    private async getExecutable(): Promise<vscode.Uri> {
-        let uri = this.context.globalState.get<vscode.Uri>('cloudflaredUri');
-        if (uri && fs.existsSync(uri)) {
-            return uri;
-        }
-
-        uri = await this.download();
-        this.context.globalState.update('cloudflaredUri', uri);
-        return uri;
+    constructor(uri: vscode.Uri) {
+        this.uri = uri;
     }
 
     async exec(args: string[]): Promise<string> {
-        const path = this.cloudflaredUri.fsPath;
+        const path = this.uri.fsPath;
         try {
             const stdout = execFileSync(path, args);
             return stdout.toString();
@@ -48,8 +21,19 @@ export class CloudflaredClient {
     }
 
     async spawn(args: string[]): Promise<ChildProcess> {
-        const path = this.cloudflaredUri.fsPath;
+        const path = this.uri.fsPath;
         return spawn(path, args);
+    }
+}
+
+
+export class CloudflaredClient extends ExecutableClient {
+    context: vscode.ExtensionContext;
+    runProcess!: ChildProcess;
+
+    constructor(uri: vscode.Uri, context: vscode.ExtensionContext) {
+        super(uri);
+        this.context = context;
     }
 
     async version(): Promise<string> {

@@ -1,12 +1,16 @@
 import * as vscode from 'vscode';
 import { CloudflaredClient } from './cloudflared';
+import { CloudflaredDownloader } from './downloader';
 
-
-const cloudflared = new CloudflaredClient();
+let cloudflared: CloudflaredClient;
 
 export async function activate(context: vscode.ExtensionContext) {
 
-	await cloudflared.setUp(context);
+	// Download cloudflared
+	const cloudflaredDownloader = new CloudflaredDownloader(context);
+	const cloudflaredUri = await cloudflaredDownloader.get();
+	// Setup Cloudflared client
+	cloudflared = new CloudflaredClient(cloudflaredUri, context);
 
 	const version = vscode.commands.registerCommand('cloudflaretunnel.version', async () => {
 		const message = await cloudflared.version();
