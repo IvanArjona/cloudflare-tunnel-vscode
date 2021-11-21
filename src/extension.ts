@@ -11,10 +11,23 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage(message);
 	});
 
-	const start = vscode.commands.registerCommand('cloudflaretunnel.start', () => {
-		vscode.window.showInformationMessage('Start');
+	const start = vscode.commands.registerCommand('cloudflaretunnel.start', async () => {
 		const port = 3000;
-		cloudflared.start(port);
+		const tunnelUri = await cloudflared.start(port);
+		const action = await vscode.window.showInformationMessage(
+			`Your quick Tunnel has been created! Visit it at ${tunnelUri}`,
+			'Copy to clipboard',
+			'Open in browser',
+		);
+
+		switch (action) {
+			case 'Copy to clipboard':
+				vscode.env.clipboard.writeText(tunnelUri);
+				break;
+			case 'Open in browser':
+				vscode.env.openExternal(vscode.Uri.parse(tunnelUri));
+				break;
+		}
 	});
 
 	context.subscriptions.push(version);

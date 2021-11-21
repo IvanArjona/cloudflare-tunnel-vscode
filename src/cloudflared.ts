@@ -1,9 +1,7 @@
 import * as vscode from 'vscode';
 import { getApi, FileDownloader } from "@microsoft/vscode-file-downloader-api";
+import { ChildProcess, execFileSync, spawn } from 'child_process';
 
-const util = require("util");
-const { exec } = require("child_process");
-const execProm = util.promisify(exec);
 const os = require('os');
 const fs = require('fs');
 
@@ -11,24 +9,14 @@ const fs = require('fs');
 export class CloudflaredClient {
     context: vscode.ExtensionContext;
     cloudflaredUri!: vscode.Uri;
-    terminal: vscode.Terminal;
+    runProcess!: ChildProcess;
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
-        this.terminal = this.createTerminal();
     }
 
     async setUp() {
         this.cloudflaredUri = await this.getExecutable();
-    }
-
-    private createTerminal(): vscode.Terminal {
-        const terminal = vscode.window.createTerminal({
-            name: "cloudflared",
-            hideFromUser: false,
-        });
-        terminal.show();
-        return terminal;
     }
 
     async download(): Promise<vscode.Uri> {
@@ -51,25 +39,40 @@ export class CloudflaredClient {
         return uri;
     }
 
-    async cmd(args: string[]): Promise<string> {
+    async exec(args: string[]): Promise<string> {
         const path = this.cloudflaredUri.fsPath;
-        const command = [path].concat(args).join(" ");
-        // this.terminal.sendText(command);
         try {
-            const { stdout } = await execProm(command);
-            return stdout;
+            const stdout = execFileSync(path, args);
+            return stdout.toString();
         } catch (ex) {
             console.error(ex);
             return "";
         }
     }
 
-    async version(): Promise<string> {
-        return await this.cmd(["--version"]);
+    async spawn(args: string[]): Promise<ChildProcess> {
+        const path = this.cloudflaredUri.fsPath;
+        return spawn(path, args);
     }
 
-    start(port: number) {
-        this.cmd(["start"]);
+    async version(): Promise<string> {
+        return await this.exec(["--version"]);
+    }
+
+    async start(port: number): Promise<string> {
+        this.runProcess = await this.spawn(["tunnel", "--url", `localhost:${port}`]);
+        return new Promise((resolve) => {
+            if (this.runProcess.stdout && this.runProcess.stderr) {
+                this.runProcess.stderr.on('data', (data) => {
+                    const lines = data.toString().split('\n');
+                    const linkColumn = lines.map((line: string) => line.split(' ')[4]);
+                    const link = linkColumn.find((line: string) => line?.startsWith('https://'));
+                    if (link) {
+                        resolve(link);
+                    }
+                });
+            }
+        });
     }
 
 }
