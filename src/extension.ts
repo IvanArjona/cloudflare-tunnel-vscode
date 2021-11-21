@@ -14,10 +14,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 
 	const start = vscode.commands.registerCommand('cloudflaretunnel.start', async () => {
-		const port = 3000;
+		const inputResponse = await vscode.window.showInputBox({
+			title: "Port",
+			placeHolder: "Select a port. Default: 80",
+			ignoreFocusOut: true
+		});
+		const port = inputResponse ? parseInt(inputResponse) : 80;
+
 		const tunnelUri = await cloudflared.start(port);
 		const action = await vscode.window.showInformationMessage(
-			`Your quick Tunnel has been created! Visit it at ${tunnelUri}`,
+			`Your quick Tunnel has been created!\n${tunnelUri}`,
 			'Copy to clipboard',
 			'Open in browser',
 		);
