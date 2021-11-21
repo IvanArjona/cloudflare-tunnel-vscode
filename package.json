@@ -6,11 +6,30 @@
   "engines": {
     "vscode": "^1.62.0"
   },
+  "author": {
+    "name": "Iván Arjona",
+    "url": "https://iarjona.com"
+  },
+  "publisher": "IvanArjona",
+  "homepage": "https://github.com/IvanArjona/cloudflare-tunnel-vscode",
+  "bugs": {
+    "url": "https://github.com/IvanArjona/cloudflare-tunnel-vscode/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IvanArjona/cloudflare-tunnel-vscode.git"
+  },
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "cloudflare",
+    "tunnel",
+    "ngrok",
+    "remote",
+    "http"
+  ],
   "activationEvents": [
-    "*",
     "onCommand:cloudflaretunnel.version",
     "onCommand:cloudflaretunnel.start",
     "onCommand:cloudflaretunnel.stop",
@@ -24,19 +43,19 @@
     "commands": [
       {
         "command": "cloudflaretunnel.version",
-        "title": "Get Cloudflare version"
+        "title": "Cloudflare Tunnel: Get version"
       },
       {
         "command": "cloudflaretunnel.start",
-        "title": "Start Cloudflare Tunnel"
+        "title": "Cloudflare Tunnel: Start"
       },
       {
         "command": "cloudflaretunnel.stop",
-        "title": "Stop Cloudflare Tunnel"
+        "title": "Cloudflare Tunnel: Stop"
       },
       {
         "command": "cloudflaretunnel.isRunning",
-        "title": "Is Cloudflare Tunnel running?"
+        "title": "Cloudflare Tunnel: Is running?"
       }
     ]
   },
