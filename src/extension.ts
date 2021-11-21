@@ -1,10 +1,12 @@
 import * as vscode from 'vscode';
 import { CloudflaredClient } from './cloudflared';
 
+
+const cloudflared = new CloudflaredClient();
+
 export async function activate(context: vscode.ExtensionContext) {
 
-	const cloudflared = new CloudflaredClient(context);
-	await cloudflared.setUp();
+	await cloudflared.setUp(context);
 
 	const version = vscode.commands.registerCommand('cloudflaretunnel.version', async () => {
 		const message = await cloudflared.version();
@@ -30,6 +32,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	const stop = vscode.commands.registerCommand('cloudflaretunnel.stop', async () => {
+		await cloudflared.stop();
+		const message = 'Cloudflare tunnel stopped';
+		vscode.window.showInformationMessage(message);
+	});
+
 	const isRunning = vscode.commands.registerCommand('cloudflaretunnel.isRunning', async () => {
 		const isRunningResponse = await cloudflared.isRunning();
 		const message = `Cloudflare tunnel is${isRunningResponse ? '' : ' not'} running`;
@@ -39,7 +47,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(version);
 	context.subscriptions.push(start);
 	context.subscriptions.push(isRunning);
+	context.subscriptions.push(stop);
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export async function deactivate() {
+	await cloudflared.stop();
+}

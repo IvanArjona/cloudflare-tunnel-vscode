@@ -13,6 +13,7 @@
     "*",
     "onCommand:cloudflaretunnel.version",
     "onCommand:cloudflaretunnel.start",
+    "onCommand:cloudflaretunnel.stop",
     "onCommand:cloudflaretunnel.isRunning"
   ],
   "extensionDependencies": [
@@ -28,6 +29,10 @@
       {
         "command": "cloudflaretunnel.start",
         "title": "Start Cloudflare Tunnel"
+      },
+      {
+        "command": "cloudflaretunnel.stop",
+        "title": "Stop Cloudflare Tunnel"
       },
       {
         "command": "cloudflaretunnel.isRunning",

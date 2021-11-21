@@ -7,15 +7,12 @@ const fs = require('fs');
 
 
 export class CloudflaredClient {
-    context: vscode.ExtensionContext;
+    context!: vscode.ExtensionContext;
     cloudflaredUri!: vscode.Uri;
     runProcess!: ChildProcess;
 
-    constructor(context: vscode.ExtensionContext) {
+    async setUp(context: vscode.ExtensionContext) {
         this.context = context;
-    }
-
-    async setUp() {
         this.cloudflaredUri = await this.getExecutable();
     }
 
@@ -73,6 +70,13 @@ export class CloudflaredClient {
                 });
             }
         });
+    }
+    
+    async stop(): Promise<boolean> {
+        if (await this.isRunning()) {
+            return this.runProcess.kill();
+        }
+        return false;
     }
 
     async isRunning(): Promise<boolean> {
