@@ -40,16 +40,28 @@ export class CloudflaredClient extends ExecutableClient {
         return await this.exec(["--version"]);
     }
 
-    async start(port: number): Promise<string> {
-        this.runProcess = await this.spawn(["tunnel", "--url", `localhost:${port}`]);
+    async start(port: number, hostname: string | undefined): Promise<string> {
+        const command = ["tunnel", "--url", `localhost:${port}`];
+        if (hostname) {
+            command.push("--hostname", hostname);
+        }
+
+        this.runProcess = await this.spawn(command);
         return new Promise((resolve) => {
             if (this.runProcess.stdout && this.runProcess.stderr) {
                 this.runProcess.stderr.on('data', (data) => {
+                    console.log(data.toString());
                     const lines = data.toString().split('\n');
                     const linkColumn = lines.map((line: string) => line.split(' ')[4]);
                     const link = linkColumn.find((line: string) => line?.startsWith('https://'));
                     if (link) {
                         resolve(link);
+                    }
+                    if (hostname) {
+                        const isPropagating = lines.find((line: string) => line.includes('Route propagating'));
+                        if (isPropagating) {
+                            resolve('https://' + hostname);
+                        }
                     }
                 });
             }
@@ -85,5 +97,4 @@ export class CloudflaredClient extends ExecutableClient {
     async isLoggedIn(): Promise<boolean> {
         return Boolean(this.context.globalState.get<string>('credentialsFile'));
     }
-
 }

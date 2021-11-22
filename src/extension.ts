@@ -13,20 +13,32 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Setup Cloudflared client
 	cloudflared = new CloudflaredClient(cloudflaredUri, context);
 
+	const config = vscode.workspace.getConfiguration('cloudflaretunnel.tunnel');
+
 	const version = vscode.commands.registerCommand('cloudflaretunnel.version', async () => {
 		const message = await cloudflared.version();
 		vscode.window.showInformationMessage(message);
 	});
 
 	const start = vscode.commands.registerCommand('cloudflaretunnel.start', async () => {
-		const inputResponse = await vscode.window.showInputBox({
-			title: "Port",
-			placeHolder: "Select a port. Default: 80",
-			ignoreFocusOut: true
-		});
-		const port = inputResponse ? parseInt(inputResponse) : 80;
+		const defaultPort = config.get<number>('defaultPort', 8080);
+		const askForPort = config.get<boolean>('askForPort', true);
+		const hostname = config.get<string>('hostname');
+		let port = defaultPort;
 
-		const tunnelUri = await cloudflared.start(port);
+		if (askForPort) {
+			const inputResponse = await vscode.window.showInputBox({
+				title: "Port number",
+				placeHolder: `Select a port. Default: ${defaultPort}`,
+				ignoreFocusOut: true
+			});
+			if (!inputResponse) {
+				return;
+			}
+			port = inputResponse ? parseInt(inputResponse) : defaultPort;
+		}
+
+		const tunnelUri = await cloudflared.start(port, hostname);
 		const action = await vscode.window.showInformationMessage(
 			`Your quick Tunnel has been created!\n${tunnelUri}`,
 			'Copy to clipboard',

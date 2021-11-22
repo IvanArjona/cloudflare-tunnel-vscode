@@ -63,7 +63,26 @@
         "command": "cloudflaretunnel.login",
         "title": "Cloudflare Tunnel: Login"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Cloudflare Tunnel",
+      "properties": {
+        "cloudflaretunnel.tunnel.defaultPort": {
+          "type": "number",
+          "default": "8080",
+          "description": "Default port number to expose in your local environment. Example: 8000"
+        },
+        "cloudflaretunnel.tunnel.askForPort": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ask for port every time you start the tunnel, even if default port is set."
+        },
+        "cloudflaretunnel.tunnel.hostname": {
+          "type": "string",
+          "description": "Your domain hostname. If not specified anything, it will generate a `.trycloudflare.com` subdomain. Make sure to login and give proper permissions before changing this setting. Example: `mytunnel.mydomain.com`"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

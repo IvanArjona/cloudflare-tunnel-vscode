@@ -42,3 +42,11 @@ Cloudflare Tunnel: Is running?
 ```
 Cloudflare Tunnel: Login
 ```
+
+# Using your custom domain
+
+First login to you cloudflare account using running the command `Cloudflare Tyunnel: Login`.
+
+Go to your editor settings page file or edit your `settings.json`.
+
+Set the setting `cloudflaretunnel.tunnel.hostname` to one subdomain not in use.
