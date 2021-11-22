@@ -67,4 +67,23 @@ export class CloudflaredClient extends ExecutableClient {
         return this.runProcess && !this.runProcess.killed;
     }
 
+    async createTunnel(): Promise<string> {
+        return await this.exec(["tunnel", "create", "cloudflaretunnel-vscode"]);
+    }
+
+    async login() {
+        const response = await this.exec(["login"]);
+        if (response.includes('You have successfully logged in')) {
+            const lines = response.split('\n');
+            const credentialsFile = lines.find((line) => line.endsWith('.pem'));
+            this.context.globalState.update('credentialsFile', credentialsFile);
+        } else if (response.startsWith('You have an existing certificate')) {
+            throw new Error(response);
+        }
+    }
+
+    async isLoggedIn(): Promise<boolean> {
+        return Boolean(this.context.globalState.get<string>('credentialsFile'));
+    }
+
 }

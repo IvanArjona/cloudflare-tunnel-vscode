@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CloudflaredClient } from './cloudflared';
 import { CloudflaredDownloader } from './downloader';
+import { showErrorMessage } from './utils';
 
 let cloudflared: CloudflaredClient;
 
@@ -54,10 +55,21 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage(message);
 	});
 
+	const login = vscode.commands.registerCommand('cloudflaretunnel.login', async () => {
+		try {
+			await cloudflared.login();
+			vscode.window.showInformationMessage('Logged in successfully');
+		} catch (ex) {
+			showErrorMessage(ex);
+		}
+		await cloudflared.createTunnel();
+	});
+
 	context.subscriptions.push(version);
 	context.subscriptions.push(start);
 	context.subscriptions.push(isRunning);
 	context.subscriptions.push(stop);
+	context.subscriptions.push(login);
 }
 
 // this method is called when your extension is deactivated

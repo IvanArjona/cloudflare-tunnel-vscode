@@ -34,7 +34,8 @@
     "onCommand:cloudflaretunnel.version",
     "onCommand:cloudflaretunnel.start",
     "onCommand:cloudflaretunnel.stop",
-    "onCommand:cloudflaretunnel.isRunning"
+    "onCommand:cloudflaretunnel.isRunning",
+    "onCommand:cloudflaretunnel.login"
   ],
   "extensionDependencies": [
     "mindaro-dev.file-downloader"
@@ -57,6 +58,10 @@
       {
         "command": "cloudflaretunnel.isRunning",
         "title": "Cloudflare Tunnel: Is running?"
+      },
+      {
+        "command": "cloudflaretunnel.login",
+        "title": "Cloudflare Tunnel: Login"
       }
     ]
   },

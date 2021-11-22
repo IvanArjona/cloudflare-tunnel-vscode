@@ -35,3 +35,10 @@ Cloudflare Tunnel: Version
 ```
 Cloudflare Tunnel: Is running?
 ```
+
+
+## Login with your cloudflare account
+
+```
+Cloudflare Tunnel: Login
+```
