@@ -45,6 +45,10 @@ export class CloudflaredClient extends ExecutableClient {
     }
 
     async start(port: number, hostname: string | undefined): Promise<string> {
+        if (await this.isRunning()) {
+            await this.stop();
+        }
+
         const command = ["tunnel", "--url", `localhost:${port}`];
         if (hostname) {
             command.push("--hostname", hostname);
