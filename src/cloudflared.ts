@@ -50,7 +50,7 @@ export class CloudflaredClient extends ExecutableClient {
         }
 
         const command = ["tunnel", "--url", `localhost:${port}`];
-        if (hostname) {
+        if (hostname && await this.isLoggedIn()) {
             command.push("--hostname", hostname);
         }
 
