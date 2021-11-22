@@ -13,14 +13,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Setup Cloudflared client
 	cloudflared = new CloudflaredClient(cloudflaredUri, context);
 
-	const config = vscode.workspace.getConfiguration('cloudflaretunnel.tunnel');
-
 	const version = vscode.commands.registerCommand('cloudflaretunnel.version', async () => {
 		const message = await cloudflared.version();
 		vscode.window.showInformationMessage(message);
 	});
 
 	const start = vscode.commands.registerCommand('cloudflaretunnel.start', async () => {
+		const config = vscode.workspace.getConfiguration('cloudflaretunnel.tunnel');
 		const defaultPort = config.get<number>('defaultPort', 8080);
 		const askForPort = config.get<boolean>('askForPort', true);
 		const hostname = config.get<string>('hostname');
@@ -38,20 +37,24 @@ export async function activate(context: vscode.ExtensionContext) {
 			port = inputResponse ? parseInt(inputResponse) : defaultPort;
 		}
 
-		const tunnelUri = await cloudflared.start(port, hostname);
-		const action = await vscode.window.showInformationMessage(
-			`Your quick Tunnel has been created!\n${tunnelUri}`,
-			'Copy to clipboard',
-			'Open in browser',
-		);
+		try {
+			const tunnelUri = await cloudflared.start(port, hostname);
+			const action = await vscode.window.showInformationMessage(
+				`Your quick Tunnel has been created!\n${tunnelUri}`,
+				'Copy to clipboard',
+				'Open in browser',
+			);
 
-		switch (action) {
-			case 'Copy to clipboard':
-				vscode.env.clipboard.writeText(tunnelUri);
-				break;
-			case 'Open in browser':
-				vscode.env.openExternal(vscode.Uri.parse(tunnelUri));
-				break;
+			switch (action) {
+				case 'Copy to clipboard':
+					vscode.env.clipboard.writeText(tunnelUri);
+					break;
+				case 'Open in browser':
+					vscode.env.openExternal(vscode.Uri.parse(tunnelUri));
+					break;
+			}
+		} catch (ex) {
+			showErrorMessage(ex);
 		}
 	});
 
