@@ -77,7 +77,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		} catch (ex) {
 			showErrorMessage(ex);
 		}
-		await cloudflared.createTunnel();
 	});
 
 	context.subscriptions.push(version);

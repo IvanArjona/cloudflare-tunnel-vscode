@@ -96,10 +96,6 @@ export class CloudflaredClient extends ExecutableClient {
         return this.runProcess && !this.runProcess.killed;
     }
 
-    async createTunnel(): Promise<string> {
-        return await this.exec(["tunnel", "create", "cloudflaretunnel-vscode"]);
-    }
-
     async login() {
         const response = await this.exec(["login"]);
         if (response.includes('You have successfully logged in')) {
