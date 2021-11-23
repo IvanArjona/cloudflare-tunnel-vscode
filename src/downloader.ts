@@ -27,7 +27,7 @@ export class CloudflaredDownloader {
 
     async get(): Promise<vscode.Uri> {
         let uri = this.context.globalState.get<vscode.Uri>('cloudflaredUri');
-        if (uri && fs.existsSync(uri)) {
+        if (uri && fs.existsSync(uri.fsPath)) {
             return uri;
         }
 
