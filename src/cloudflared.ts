@@ -44,12 +44,12 @@ export class CloudflaredClient extends ExecutableClient {
         return await this.exec(["--version"]);
     }
 
-    async start(port: number, hostname: string | undefined): Promise<string> {
+    async start(url: string, hostname: string | undefined): Promise<string> {
         if (await this.isRunning()) {
             await this.stop();
         }
 
-        const command = ["tunnel", "--url", `localhost:${port}`];
+        const command = ["tunnel", "--url", url];
         if (hostname && await this.isLoggedIn()) {
             command.push("--hostname", hostname);
         }

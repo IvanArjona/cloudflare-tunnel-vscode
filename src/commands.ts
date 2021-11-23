@@ -13,6 +13,7 @@ export async function startCommand(cloudflared: CloudflaredClient) {
     const defaultPort = config.get<number>('defaultPort', 8080);
     const askForPort = config.get<boolean>('askForPort', true);
     const hostname = config.get<string>('hostname');
+    const localHostname = config.get<string>('localHostname', 'localhost');
     let port = defaultPort;
 
     if (askForPort) {
@@ -28,7 +29,8 @@ export async function startCommand(cloudflared: CloudflaredClient) {
     }
 
     try {
-        const tunnelUri = await cloudflared.start(port, hostname);
+        const url = `${localHostname}:${port}`;
+        const tunnelUri = await cloudflared.start(url, hostname);
         const action = await vscode.window.showInformationMessage(
             `Your quick Tunnel has been created!\n${tunnelUri}`,
             'Copy to clipboard',
