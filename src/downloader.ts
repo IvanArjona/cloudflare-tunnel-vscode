@@ -12,6 +12,10 @@ export class CloudflaredDownloader {
         this.context = context;
     }
 
+    private async setPermissions(uri: vscode.Uri) {
+        fs.chmodSync(uri.fsPath, 0o750);
+    }
+
     private async download(): Promise<vscode.Uri> {
         const arch = os.arch().replace('x', 'amd');
         const fileName = os.type() === 'Windows_NT' ? `cloudflared-windows-${arch}.exe` : `cloudflared-linux-${arch}`;
@@ -28,6 +32,7 @@ export class CloudflaredDownloader {
         }
 
         uri = await this.download();
+        await this.setPermissions(uri);
         this.context.globalState.update('cloudflaredUri', uri);
         return uri;
     }
