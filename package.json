@@ -96,6 +96,11 @@
           "type": "string",
           "default": "localhost",
           "markdownDescription": "A local hostname in your network. Your probably want `localhost` or `127.0.0.1`. It's also possible to use an ip of other machine in the same network. Example: `192.168.1.100`"
+        },
+        "cloudflaretunnel.gui.showStatusBarItem": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show an item in the status bar to start or stop the tunnel."
         }
       }
     }
