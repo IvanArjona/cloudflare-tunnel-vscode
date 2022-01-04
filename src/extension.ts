@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { CloudflaredClient } from './cloudflared';
 import { CloudflaredDownloader } from './downloader';
-import { isRunningCommand, loginCommand, startCommand, stopCommand, getUrlCommand, versionCommand } from './commands';
+import { isRunningCommand, loginCommand, logoutCommand, startCommand, stopCommand, getUrlCommand, versionCommand } from './commands';
 
 let cloudflared: CloudflaredClient;
 
@@ -19,7 +19,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		getUrl: getUrlCommand,
 		isRunning: isRunningCommand,
 		stop: stopCommand,
-		login: loginCommand
+		login: loginCommand,
+		logout: logoutCommand
 	};
 
 	for (const [commandName, commandCallback] of Object.entries(commands)) {

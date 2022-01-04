@@ -63,3 +63,18 @@ export async function loginCommand(cloudflared: CloudflaredClient) {
         showErrorMessage(ex);
     }
 }
+
+export async function logoutCommand(cloudflared: CloudflaredClient) {
+    const isLoggedIn = await cloudflared.isLoggedIn();
+
+    if (isLoggedIn) {
+        try {
+            await cloudflared.logout();
+            showInformationMessage('Logged out successfully');
+        } catch (ex) {
+            showErrorMessage(ex);
+        }
+    } else {
+            showErrorMessage('You are not logged in');
+    }
+}

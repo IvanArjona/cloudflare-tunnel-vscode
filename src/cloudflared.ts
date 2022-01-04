@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { ChildProcess, execFileSync, spawn } from 'child_process';
 
+const fs = require('fs');
+
 
 abstract class ExecutableClient {
     log: vscode.OutputChannel;
@@ -118,5 +120,11 @@ export class CloudflaredClient extends ExecutableClient {
 
     async isLoggedIn(): Promise<boolean> {
         return Boolean(this.context.globalState.get<string>('credentialsFile'));
+    }
+
+    async logout() {
+        const credentialsFile = this.context.globalState.get<string>('credentialsFile');
+        fs.unlinkSync(credentialsFile);
+        this.context.globalState.update('credentialsFile', undefined);
     }
 }

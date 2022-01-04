@@ -49,6 +49,12 @@ Cloudflare Tunnel: Get url
 Cloudflare Tunnel: Login
 ```
 
+## Logout from your cloudflare account
+
+```
+Cloudflare Tunnel: Logout
+```
+
 # Using your custom domain
 
 First login to you cloudflare account using running the command `Cloudflare Tyunnel: Login`.

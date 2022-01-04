@@ -36,7 +36,8 @@
     "onCommand:cloudflaretunnel.stop",
     "onCommand:cloudflaretunnel.isRunning",
     "onCommand:cloudflaretunnel.getUrl",
-    "onCommand:cloudflaretunnel.login"
+    "onCommand:cloudflaretunnel.login",
+    "onCommand:cloudflaretunnel.logout"
   ],
   "extensionDependencies": [
     "mindaro-dev.file-downloader"
@@ -67,6 +68,10 @@
       {
         "command": "cloudflaretunnel.login",
         "title": "Cloudflare Tunnel: Login"
+      },
+      {
+        "command": "cloudflaretunnel.logout",
+        "title": "Cloudflare Tunnel: Logout"
       }
     ],
     "configuration": {
