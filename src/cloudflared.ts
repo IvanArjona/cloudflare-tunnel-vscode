@@ -34,6 +34,7 @@ abstract class ExecutableClient {
 export class CloudflaredClient extends ExecutableClient {
     context: vscode.ExtensionContext;
     runProcess!: ChildProcess;
+    url: string | null = null;
 
     constructor(uri: vscode.Uri, context: vscode.ExtensionContext) {
         super(uri);
@@ -68,11 +69,14 @@ export class CloudflaredClient extends ExecutableClient {
                         if (hasLink) {
                             const link = info.split(' ').find((word: string) => word.endsWith('.trycloudflare.com'));
                             resolve(link);
+                            this.url = link;
                         }
                         if (hostname) {
                             const isPropagating = info.includes('Route propagating');
                             if (isPropagating) {
-                                resolve('https://' + hostname);
+                                const url = 'https://' + hostname;
+                                this.url = url;
+                                resolve(url);
                             }
                         }
                         if (logLevel === 'ERR') {
@@ -87,6 +91,7 @@ export class CloudflaredClient extends ExecutableClient {
     
     async stop(): Promise<boolean> {
         if (await this.isRunning()) {
+            this.url = null;
             return this.runProcess.kill();
         }
         return false;
@@ -94,6 +99,10 @@ export class CloudflaredClient extends ExecutableClient {
 
     async isRunning(): Promise<boolean> {
         return this.runProcess && !this.runProcess.killed;
+    }
+
+    async getUrl(): Promise<string | null> {
+        return this.url;
     }
 
     async login() {

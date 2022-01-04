@@ -35,6 +35,7 @@
     "onCommand:cloudflaretunnel.start",
     "onCommand:cloudflaretunnel.stop",
     "onCommand:cloudflaretunnel.isRunning",
+    "onCommand:cloudflaretunnel.getUrl",
     "onCommand:cloudflaretunnel.login"
   ],
   "extensionDependencies": [
@@ -58,6 +59,10 @@
       {
         "command": "cloudflaretunnel.isRunning",
         "title": "Cloudflare Tunnel: Is running?"
+      },
+      {
+        "command": "cloudflaretunnel.getUrl",
+        "title": "Cloudflare Tunnel: Get url"
       },
       {
         "command": "cloudflaretunnel.login",

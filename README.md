@@ -36,6 +36,12 @@ Cloudflare Tunnel: Version
 Cloudflare Tunnel: Is running?
 ```
 
+## Get the current tunnel url
+
+```
+Cloudflare Tunnel: Get url
+```
+
 
 ## Login with your cloudflare account
 

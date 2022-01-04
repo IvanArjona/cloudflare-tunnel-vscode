@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { CloudflaredClient } from './cloudflared';
-import { showErrorMessage } from './utils';
+import { showErrorMessage, showInformationMessage } from './utils';
 
 
 export async function versionCommand(cloudflared: CloudflaredClient) {
     const message = await cloudflared.version();
-    vscode.window.showInformationMessage(message);
+    showInformationMessage(message);
 }
 
 export async function startCommand(cloudflared: CloudflaredClient) {
@@ -31,20 +31,7 @@ export async function startCommand(cloudflared: CloudflaredClient) {
     try {
         const url = `${localHostname}:${port}`;
         const tunnelUri = await cloudflared.start(url, hostname);
-        const action = await vscode.window.showInformationMessage(
-            `Your quick Tunnel has been created!\n${tunnelUri}`,
-            'Copy to clipboard',
-            'Open in browser',
-        );
-
-        switch (action) {
-            case 'Copy to clipboard':
-                vscode.env.clipboard.writeText(tunnelUri);
-                break;
-            case 'Open in browser':
-                vscode.env.openExternal(vscode.Uri.parse(tunnelUri));
-                break;
-        }
+        await showInformationMessage('Your quick Tunnel has been created!', tunnelUri);
     } catch (ex) {
         showErrorMessage(ex);
     }
@@ -53,19 +40,25 @@ export async function startCommand(cloudflared: CloudflaredClient) {
 export async function stopCommand(cloudflared: CloudflaredClient) {
     await cloudflared.stop();
     const message = 'Cloudflare tunnel stopped';
-    vscode.window.showInformationMessage(message);
+    showInformationMessage(message);
 }
 
 export async function isRunningCommand(cloudflared: CloudflaredClient) {
     const response = await cloudflared.isRunning();
     const message = `Cloudflare tunnel is${response ? '' : ' not'} running`;
-    vscode.window.showInformationMessage(message);
+    showInformationMessage(message);
+}
+
+export async function getUrlCommand(cloudflared: CloudflaredClient) {
+    const url = await cloudflared.getUrl();
+    const message = `Cloudflare tunnel is${url ? '' : ' not'} running`;
+    showInformationMessage(message, url);
 }
 
 export async function loginCommand(cloudflared: CloudflaredClient) {
     try {
         await cloudflared.login();
-        vscode.window.showInformationMessage('Logged in successfully');
+        showInformationMessage('Logged in successfully');
     } catch (ex) {
         showErrorMessage(ex);
     }
