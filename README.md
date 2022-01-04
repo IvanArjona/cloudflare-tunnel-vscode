@@ -4,7 +4,11 @@
         <img src="images/icon.png" width="150px" alt="VSCode Marketplace badge" />
     </a>
     <br>
+    <br>
     <em>A Visual Studio code extension to crea a local tunnel so your local http server can be accessed remotely using <a href="https://www.cloudflare.com/es-es/products/tunnel/">Cloudflare Argo Tunnel</a></em>
+    <br>
+    <br>
+    <a href="https://marketplace.visualstudio.com/items?itemName=IvanArjona.cloudflaretunnel"><img src="https://vsmarketplacebadge.apphb.com/version-short/IvanArjona.cloudflaretunnel.svg?label=Cloudflare%20Tunnel%20for%20VSCode&color=blue&logo=visual-studio-code" alt="VSCode Marketplace badge" /></a>
 </div>
 
 <br>
