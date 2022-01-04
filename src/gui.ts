@@ -14,24 +14,26 @@ export class CloudflareTunnelGUI {
         }
     }
 
+    updateStatusBarItem(text: string, icon: string, command: string | undefined = undefined) {
+        this.statusBarItem.command = command;
+        this.statusBarItem.text = `$(${icon}) ${text}`;;
+        this.statusBarItem.tooltip = text;
+    }
+
     onStarting() {
-        this.statusBarItem.command = undefined;
-        this.statusBarItem.text = `$(sync) Starting Cloudflare Tunnel`;
+        this.updateStatusBarItem('Starting Cloudflare Tunnel', 'sync');
     }
 
     onStopping() {
-        this.statusBarItem.command = undefined;
-        this.statusBarItem.text = `$(sync) Stopping Cloudflare Tunnel`;
+        this.updateStatusBarItem('Stopping Cloudflare Tunnel', 'sync');
     }
 
     onStart() {
-        this.statusBarItem.command = 'cloudflaretunnel.stop';
-        this.statusBarItem.text = `$(cloud) Stop Cloudflare Tunnel`;
+        this.updateStatusBarItem('Stop Cloudflare Tunnel', 'cloud', 'cloudflaretunnel.stop');
     }
 
     onStop() {
-        this.statusBarItem.command = 'cloudflaretunnel.start';
-        this.statusBarItem.text = `$(cloud) Start Cloudflare Tunnel`;
+        this.updateStatusBarItem('Start Cloudflare Tunnel', 'cloud', 'cloudflaretunnel.start');
     }
 }
 
