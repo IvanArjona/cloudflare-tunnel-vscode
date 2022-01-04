@@ -16,9 +16,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	const commands = {
 		version: versionCommand,
 		start: startCommand,
+		stop: stopCommand,
 		getUrl: getUrlCommand,
 		isRunning: isRunningCommand,
-		stop: stopCommand,
 		login: loginCommand,
 		logout: logoutCommand
 	};

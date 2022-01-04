@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { CloudflaredClient } from './cloudflared';
+import { cloudflareTunnelGUI } from './gui';
 import { showErrorMessage, showInformationMessage } from './utils';
 
 
@@ -29,17 +30,22 @@ export async function startCommand(cloudflared: CloudflaredClient) {
     }
 
     try {
+        cloudflareTunnelGUI.onStarting();
         const url = `${localHostname}:${port}`;
         const tunnelUri = await cloudflared.start(url, hostname);
+        cloudflareTunnelGUI.onStart();
         await showInformationMessage('Your quick Tunnel has been created!', tunnelUri);
     } catch (ex) {
+        cloudflareTunnelGUI.onStop();
         showErrorMessage(ex);
     }
 }
 
 export async function stopCommand(cloudflared: CloudflaredClient) {
+    cloudflareTunnelGUI.onStopping();
     await cloudflared.stop();
     const message = 'Cloudflare tunnel stopped';
+    cloudflareTunnelGUI.onStop();
     showInformationMessage(message);
 }
 
