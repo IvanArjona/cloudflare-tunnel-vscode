@@ -14,10 +14,10 @@ export class CloudflareTunnelGUI {
         }
     }
 
-    updateStatusBarItem(text: string, icon: string, command: string | undefined = undefined) {
+    updateStatusBarItem(text: string, icon: string, command: string | undefined = undefined, tooltip: vscode.MarkdownString | null = null) {
         this.statusBarItem.command = command;
         this.statusBarItem.text = `$(${icon}) ${text}`;;
-        this.statusBarItem.tooltip = text;
+        this.statusBarItem.tooltip = tooltip || text;
     }
 
     onStarting() {
@@ -28,8 +28,9 @@ export class CloudflareTunnelGUI {
         this.updateStatusBarItem('Stopping Cloudflare Tunnel', 'sync');
     }
 
-    onStart() {
-        this.updateStatusBarItem('Stop Cloudflare Tunnel', 'cloud', 'cloudflaretunnel.stop');
+    onStart(url: string, hostname: string) {
+        const tooltip = new vscode.MarkdownString(`Cloudflare Tunnel is running\n\nLocal: \`${url}\`\n\nRemote: \`${hostname}\`\n\n[Open in browser](${hostname})`);
+        this.updateStatusBarItem('Stop Cloudflare Tunnel', 'cloud', 'cloudflaretunnel.stop', tooltip);
     }
 
     onStop() {

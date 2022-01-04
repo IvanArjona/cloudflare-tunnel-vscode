@@ -33,7 +33,7 @@ export async function startCommand(cloudflared: CloudflaredClient) {
         cloudflareTunnelGUI.onStarting();
         const url = `${localHostname}:${port}`;
         const tunnelUri = await cloudflared.start(url, hostname);
-        cloudflareTunnelGUI.onStart();
+        cloudflareTunnelGUI.onStart(url, tunnelUri);
         await showInformationMessage('Your quick Tunnel has been created!', tunnelUri);
     } catch (ex) {
         cloudflareTunnelGUI.onStop();
