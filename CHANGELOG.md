@@ -6,15 +6,16 @@ All notable changes to the "ngrok-for-vscode" extension will be documented in th
 
 ### Changed
 
-- Preview gif
-- vscode package settings
+- Preview gif.
+- vscode package settings.
+- Changed activation event to `onStartupFinished` for performance reasons.
 
 ## [0.3.0] - 2022-01-04
 
 ### Added
 
 - Graphical interface to start and stop the tunnel.
-- Config settings to enable or thisable the GUI
+- Config settings to enable or thisable the GUI.
 
 ## [0.2.3] - 2021-11-23
 

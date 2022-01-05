@@ -36,7 +36,7 @@
     "http"
   ],
   "activationEvents": [
-    "*",
+    "onStartupFinished",
     "onCommand:cloudflaretunnel.version",
     "onCommand:cloudflaretunnel.start",
     "onCommand:cloudflaretunnel.stop",
