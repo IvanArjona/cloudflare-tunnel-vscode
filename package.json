@@ -1,7 +1,7 @@
 {
   "name": "cloudflaretunnel",
   "displayName": "Cloudflare Tunnel",
-  "description": "",
+  "description": "A VSCode extension to create a local tunnel through Cloudflare",
   "version": "0.3.0",
   "engines": {
     "vscode": "^1.62.0"
@@ -19,7 +19,12 @@
     "type": "git",
     "url": "https://github.com/IvanArjona/cloudflare-tunnel-vscode.git"
   },
+  "galleryBanner": {
+    "color": "#F48120",
+    "theme": "dark"
+  },
   "icon": "images/icon.png",
+  "license": "MIT",
   "categories": [
     "Other"
   ],
@@ -104,9 +109,6 @@
         }
       }
     }
-  },
-  "workbench.colorCustomizations": {
-    "cloudflaretunnel.statusBar.cloudflarePrimary": "#F48120"
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
