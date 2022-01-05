@@ -11,51 +11,30 @@
     <a href="https://marketplace.visualstudio.com/items?itemName=IvanArjona.cloudflaretunnel"><img src="https://vsmarketplacebadge.apphb.com/version-short/IvanArjona.cloudflaretunnel.svg?label=Cloudflare%20Tunnel%20for%20VSCode&color=blue&logo=visual-studio-code" alt="VSCode Marketplace badge" /></a>
 </div>
 
+<hr>
+
 <br>
-<br>
+
+![Preview](images/preview.gif)
+
+# Features
+
+- Start a local Cloudflare Tunnel accesible outside your network
+- Specify your local port number
+- Use any local hostname or ip address inside your network
+- Use a custom subdomain. Login to cloudflare is required.
 
 # Commands
 
-## Start a local tunnel
+Commands accesible from the Command Palette (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>).
 
 ```
 Cloudflare Tunnel: Start
-```
-
-## Stop your local tunnel
-
-```
 Cloudflare Tunnel: Stop
-```
-
-## Get the cloudflared version
-
-```
 Cloudflare Tunnel: Version
-```
-
-## Check if the tunnel is running
-
-```
 Cloudflare Tunnel: Is running?
-```
-
-## Get the current tunnel url
-
-```
 Cloudflare Tunnel: Get url
-```
-
-
-## Login with your cloudflare account
-
-```
 Cloudflare Tunnel: Login
-```
-
-## Logout from your cloudflare account
-
-```
 Cloudflare Tunnel: Logout
 ```
 
