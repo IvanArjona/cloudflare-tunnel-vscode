@@ -20,9 +20,12 @@ export class CloudflaredDownloader {
         const arch = os.arch().replace('x', 'amd');
         const fileName = os.type() === 'Windows_NT' ? `cloudflared-windows-${arch}.exe` : `cloudflared-linux-${arch}`;
         const remotePath = vscode.Uri.parse(`https://github.com/cloudflare/cloudflared/releases/latest/download/${fileName}`);
-
         const fileDownloader: FileDownloader = await getApi();
-        return await fileDownloader.downloadFile(remotePath, fileName, this.context);
+
+        return await vscode.window.withProgress<vscode.Uri>({
+            location: vscode.ProgressLocation.Window,
+            title: 'Downloading cloudfared client'
+        }, () => fileDownloader.downloadFile(remotePath, fileName, this.context));
     }
 
     async get(): Promise<vscode.Uri> {

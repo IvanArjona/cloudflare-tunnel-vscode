@@ -2,6 +2,12 @@
 
 All notable changes to the "ngrok-for-vscode" extension will be documented in this file.
 
+## [0.3.3] - 2022-01-06
+
+### Changed
+
+- Show progress while downloading cloudflared client on startup.
+
 ## [0.3.1] - 2022-01-05
 
 ### Changed
