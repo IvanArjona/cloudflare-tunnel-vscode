@@ -4,12 +4,12 @@ import { cloudflareTunnelGUI } from './gui';
 import { showErrorMessage, showInformationMessage } from './utils';
 
 
-export async function versionCommand(cloudflared: CloudflaredClient) {
+async function version(cloudflared: CloudflaredClient) {
     const message = await cloudflared.version();
     showInformationMessage(message);
 }
 
-export async function startCommand(cloudflared: CloudflaredClient) {
+async function start(cloudflared: CloudflaredClient) {
     const config = vscode.workspace.getConfiguration('cloudflaretunnel.tunnel');
     const defaultPort = config.get<number>('defaultPort', 8080);
     const askForPort = config.get<boolean>('askForPort', true);
@@ -41,7 +41,7 @@ export async function startCommand(cloudflared: CloudflaredClient) {
     }
 }
 
-export async function stopCommand(cloudflared: CloudflaredClient) {
+async function stop(cloudflared: CloudflaredClient) {
     cloudflareTunnelGUI.onStopping();
     await cloudflared.stop();
     const message = 'Cloudflare tunnel stopped';
@@ -49,19 +49,19 @@ export async function stopCommand(cloudflared: CloudflaredClient) {
     showInformationMessage(message);
 }
 
-export async function isRunningCommand(cloudflared: CloudflaredClient) {
+async function isRunning(cloudflared: CloudflaredClient) {
     const response = await cloudflared.isRunning();
     const message = `Cloudflare tunnel is${response ? '' : ' not'} running`;
     showInformationMessage(message);
 }
 
-export async function getUrlCommand(cloudflared: CloudflaredClient) {
+async function getUrl(cloudflared: CloudflaredClient) {
     const url = await cloudflared.getUrl();
     const message = `Cloudflare tunnel is${url ? '' : ' not'} running`;
     showInformationMessage(message, url);
 }
 
-export async function loginCommand(cloudflared: CloudflaredClient) {
+async function login(cloudflared: CloudflaredClient) {
     try {
         await cloudflared.login();
         showInformationMessage('Logged in successfully');
@@ -70,7 +70,7 @@ export async function loginCommand(cloudflared: CloudflaredClient) {
     }
 }
 
-export async function logoutCommand(cloudflared: CloudflaredClient) {
+async function logout(cloudflared: CloudflaredClient) {
     const isLoggedIn = await cloudflared.isLoggedIn();
 
     if (isLoggedIn) {
@@ -84,3 +84,15 @@ export async function logoutCommand(cloudflared: CloudflaredClient) {
             showErrorMessage('You are not logged in');
     }
 }
+
+const commands = [
+    version,
+    start,
+    stop,
+    isRunning,
+    getUrl,
+    login,
+    logout
+];
+
+export default commands;
