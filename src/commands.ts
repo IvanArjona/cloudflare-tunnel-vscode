@@ -10,6 +10,7 @@ async function version(cloudflared: CloudflaredClient) {
 }
 
 async function start(cloudflared: CloudflaredClient) {
+    // Configuration
     const config = vscode.workspace.getConfiguration('cloudflaretunnel.tunnel');
     const defaultPort = config.get<number>('defaultPort', 8080);
     const askForPort = config.get<boolean>('askForPort', true);
@@ -17,6 +18,7 @@ async function start(cloudflared: CloudflaredClient) {
     const localHostname = config.get<string>('localHostname', 'localhost');
     let port = defaultPort;
 
+    // Port input
     if (askForPort) {
         const inputResponse = await vscode.window.showInputBox({
             title: "Port number",
@@ -31,9 +33,11 @@ async function start(cloudflared: CloudflaredClient) {
 
     try {
         cloudflareTunnelGUI.onStarting();
+
         const url = `${localHostname}:${port}`;
         const tunnelUri = await cloudflared.start(url, hostname);
         cloudflareTunnelGUI.onStart(url, tunnelUri);
+
         await showInformationMessage('Your quick Tunnel has been created!', tunnelUri);
     } catch (ex) {
         cloudflareTunnelGUI.onStop();
@@ -43,9 +47,11 @@ async function start(cloudflared: CloudflaredClient) {
 
 async function stop(cloudflared: CloudflaredClient) {
     cloudflareTunnelGUI.onStopping();
+
     await cloudflared.stop();
-    const message = 'Cloudflare tunnel stopped';
     cloudflareTunnelGUI.onStop();
+
+    const message = 'Cloudflare tunnel stopped';
     showInformationMessage(message);
 }
 
