@@ -6,7 +6,10 @@ export class CloudflareTunnelGUI {
     constructor() {
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, Number.MAX_SAFE_INTEGER);
         this.onStop();
+        this.showStatusBarItem();
+    }
 
+    private showStatusBarItem() {
         const config = vscode.workspace.getConfiguration('cloudflaretunnel.gui');
         const showStatusBarItem = config.get<boolean>('showStatusBarItem', true);
         if (showStatusBarItem) {
