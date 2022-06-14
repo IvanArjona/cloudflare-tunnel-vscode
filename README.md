@@ -40,7 +40,7 @@ Cloudflare Tunnel: Logout
 
 # Using your custom domain
 
-First login to you cloudflare account using running the command `Cloudflare Tyunnel: Login`.
+First login to you cloudflare account using running the command `Cloudflare Tunnel: Login`.
 
 Go to your editor settings page file or edit your `settings.json`.
 
