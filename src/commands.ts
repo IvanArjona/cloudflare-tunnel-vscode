@@ -35,6 +35,10 @@ async function start(cloudflared: CloudflaredClient) {
         cloudflareTunnelGUI.onStarting();
 
         const url = `${localHostname}:${port}`;
+        if (hostname) {
+            await cloudflared.createTunnel();
+            await cloudflared.routeDns(hostname);
+        }
         const tunnelUri = await cloudflared.start(url, hostname);
         cloudflareTunnelGUI.onStart(url, tunnelUri);
 

@@ -37,14 +37,34 @@ export class CloudflaredClient extends ExecutableClient {
     context: vscode.ExtensionContext;
     runProcess!: ChildProcess;
     url: string | null = null;
+    tunnelName: string;
 
     constructor(uri: vscode.Uri, context: vscode.ExtensionContext) {
         super(uri);
         this.context = context;
+        this.tunnelName = 'cloudflare-tunnel-vscode';
     }
 
     async version(): Promise<string> {
         return await this.exec(["--version"]);
+    }
+
+    async createTunnel(): Promise<void> {
+        const listCommand = ['tunnel', 'list'];
+        const tunnels = await this.exec(listCommand);
+        if (!tunnels.includes(this.tunnelName)) {
+            const command = ['tunnel', 'create', this.tunnelName];
+            this.log.appendLine(`Creating tunnel ${this.tunnelName}`);
+            await this.exec(command);
+        }
+        this.log.appendLine(`Tunnel ${this.tunnelName} already exists`);
+    }
+
+    async routeDns(hostname: string): Promise<void> {
+        const command = ['tunnel', 'route', 'dns', '--overwrite-dns', this.tunnelName, hostname];
+        this.log.appendLine(`Creating route dns ${hostname} for tunnel ${this.tunnelName}`);
+        const response = await this.exec(command);
+        console.log(response);
     }
 
     async start(url: string, hostname: string | undefined): Promise<string> {
@@ -52,9 +72,9 @@ export class CloudflaredClient extends ExecutableClient {
             await this.stop();
         }
 
-        const command = ["tunnel", "--url", url];
+        let command = ['tunnel', '--url', url];
         if (hostname && await this.isLoggedIn()) {
-            command.push("--hostname", hostname);
+            command = ['tunnel', 'run', '--url', url, this.tunnelName];
         }
 
         this.runProcess = await this.spawn(command);
@@ -74,7 +94,7 @@ export class CloudflaredClient extends ExecutableClient {
                             this.url = link;
                         }
                         if (hostname) {
-                            const isPropagating = info.includes('Route propagating');
+                            const isPropagating = info.includes('registered connIndex');
                             if (isPropagating) {
                                 const url = 'https://' + hostname;
                                 this.url = url;

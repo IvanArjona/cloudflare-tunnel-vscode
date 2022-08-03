@@ -2,6 +2,12 @@
 
 All notable changes to the "ngrok-for-vscode" extension will be documented in this file.
 
+## [0.3.4] - 2022-08-03
+
+### Changed
+
+- Migrated legacy tunnels to named tunnels.
+
 ## [0.3.3] - 2022-01-06
 
 ### Changed
