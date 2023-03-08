@@ -8,7 +8,7 @@
     <em>A Visual Studio Code extension to create a local tunnel so your local http server can be accessed remotely using <a href="https://www.cloudflare.com/es-es/products/tunnel/">Cloudflare Tunnel</a></em>
     <br>
     <br>
-    <a href="https://marketplace.visualstudio.com/items?itemName=IvanArjona.cloudflaretunnel"><img src="https://vsmarketplacebadge.apphb.com/version-short/IvanArjona.cloudflaretunnel.svg?label=Cloudflare%20Tunnel%20for%20VSCode&color=blue&logo=visual-studio-code" alt="VSCode Marketplace badge" /></a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=IvanArjona.cloudflaretunnel"><img src="https://img.shields.io/visual-studio-marketplace/azure-devops/installs/total/IvanArjona.cloudflaretunnel?color=%23007ACC&logo=Visual%20Studio%20Code&logoColor=%23007ACC&style=for-the-badge" alt="VSCode Marketplace" /></a>
 </div>
 
 <hr>
