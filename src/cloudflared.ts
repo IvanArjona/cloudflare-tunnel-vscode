@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
+import * as fs from "fs";
 import { ChildProcess, execFileSync, spawn } from 'child_process';
-
-const fs = require('fs');
 
 
 abstract class ExecutableClient {
@@ -83,9 +82,9 @@ export class CloudflaredClient extends ExecutableClient {
                 this.runProcess.stderr.on('data', (data) => {
                     const strData = data.toString();
                     const lines = strData.split('\n');
-                    for (let line of lines) {
+                    for (const line of lines) {
                         this.log.appendLine(line);
-                        const [time, logLevel, ...extra] = line.split(' ');
+                        const [, logLevel, ...extra] = line.split(' ');
                         const info = extra.filter((word: string) => word && word !== ' ').join(' ');
                         const hasLink = info.includes('.trycloudflare.com');
                         if (hasLink) {
