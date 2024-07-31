@@ -15,7 +15,7 @@ export class CloudflaredDownloader {
   }
 
   private async getCloudflaredFileName(): Promise<string> {
-    const arch = os.arch().replace("x", "amd");
+    const arch = os.arch().replace("x", "amd").replace("ia32", "386"); // amd64, 386
     const osType = os.type().toLowerCase().replace("_nt", ""); // windows, linux, darwin
     const extension = osType === "windows" ? ".exe" : "";
     return `cloudflared-${osType}-${arch}${extension}`;
