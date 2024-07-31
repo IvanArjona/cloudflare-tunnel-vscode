@@ -17,7 +17,8 @@ export class CloudflaredDownloader {
   private async getCloudflaredFileName(): Promise<string> {
     const arch = os.arch().replace("x", "amd");
     const osType = os.type().toLowerCase().replace("_nt", ""); // windows, linux, darwin
-    return `cloudflared-${osType}-${arch}`;
+    const extension = osType === "windows" ? ".exe" : "";
+    return `cloudflared-${osType}-${arch}${extension}`;
   }
 
   private async getDownloadUri(fileName: string): Promise<vscode.Uri> {
@@ -42,6 +43,7 @@ export class CloudflaredDownloader {
 
   async get(): Promise<vscode.Uri> {
     let uri = this.context.globalState.get<vscode.Uri>("cloudflaredUri");
+    uri = undefined;
     if (uri && fs.existsSync(uri.fsPath)) {
       return uri;
     }
