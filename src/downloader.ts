@@ -27,8 +27,7 @@ export class CloudflaredDownloader {
     );
   }
 
-  private async download(): Promise<vscode.Uri> {
-    const fileName = await this.getCloudflaredFileName();
+  private async download(fileName: string): Promise<vscode.Uri> {
     const downloadUri = await this.getDownloadUri(fileName);
     const fileDownloader: FileDownloader = await getApi();
 
@@ -43,12 +42,12 @@ export class CloudflaredDownloader {
 
   async get(): Promise<vscode.Uri> {
     let uri = this.context.globalState.get<vscode.Uri>("cloudflaredUri");
-    uri = undefined;
     if (uri && fs.existsSync(uri.fsPath)) {
       return uri;
     }
 
-    uri = await this.download();
+    const fileName = await this.getCloudflaredFileName();
+    uri = await this.download(fileName);
     await this.setPermissions(uri);
     this.context.globalState.update("cloudflaredUri", uri);
     return uri;
