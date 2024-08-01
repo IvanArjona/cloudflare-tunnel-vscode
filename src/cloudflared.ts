@@ -3,11 +3,9 @@ import * as fs from "fs";
 import { ChildProcess, execFileSync, spawn } from "child_process";
 
 abstract class ExecutableClient {
-  log: vscode.OutputChannel;
-  uri: vscode.Uri;
+  protected log: vscode.OutputChannel;
 
-  constructor(uri: vscode.Uri) {
-    this.uri = uri;
+  constructor(private uri: vscode.Uri) {
     this.log = vscode.window.createOutputChannel("Cloudflare Tunnel");
   }
 
@@ -17,8 +15,9 @@ abstract class ExecutableClient {
       this.log.appendLine(`Exec: ${args.join(" ")}`);
       const stdout = execFileSync(path, args);
       return stdout.toString();
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.log.appendLine(`Error executing command: ${error}`);
+      console.error(error);
       return "";
     }
   }
@@ -31,12 +30,11 @@ abstract class ExecutableClient {
 }
 
 export class CloudflaredClient extends ExecutableClient {
-  context: vscode.ExtensionContext;
   runProcess!: ChildProcess;
   url: string | null = null;
   tunnelName: string;
 
-  constructor(uri: vscode.Uri, context: vscode.ExtensionContext) {
+  constructor(uri: vscode.Uri, private context: vscode.ExtensionContext) {
     super(uri);
     this.context = context;
     this.tunnelName = "cloudflare-tunnel-vscode";
