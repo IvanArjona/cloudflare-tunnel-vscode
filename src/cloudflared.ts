@@ -1,30 +1,31 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import { ChildProcess, execFileSync, spawn } from "child_process";
+import { OutputChannelLogger } from "./logger";
 
 abstract class ExecutableClient {
-  protected log: vscode.OutputChannel;
+  protected logger: OutputChannelLogger;
 
-  constructor(private uri: vscode.Uri) {
-    this.log = vscode.window.createOutputChannel("Cloudflare Tunnel");
+  constructor(private uri: vscode.Uri, private fileName: string) {
+    this.logger = new OutputChannelLogger();
   }
 
   async exec(args: string[]): Promise<string> {
     const path = this.uri.fsPath;
     try {
-      this.log.appendLine(`Exec: ${args.join(" ")}`);
-      const stdout = execFileSync(path, args);
-      return stdout.toString();
+      this.logger.info(`$ ${this.fileName} ${args.join(" ")}`);
+      const stdout = execFileSync(path, args).toString();
+      this.logger.info(`> ${stdout}`);
+      return stdout;
     } catch (error) {
-      this.log.appendLine(`Error executing command: ${error}`);
-      console.error(error);
+      this.logger.error(`Error executing command: ${error}`);
       return "";
     }
   }
 
   async spawn(args: string[]): Promise<ChildProcess> {
     const path = this.uri.fsPath;
-    this.log.appendLine(`Spawn: ${args.join(" ")}`);
+    this.logger.info(`$$ ${this.fileName} ${args.join(" ")}`);
     return spawn(path, args);
   }
 }
@@ -35,7 +36,7 @@ export class CloudflaredClient extends ExecutableClient {
   tunnelName: string;
 
   constructor(uri: vscode.Uri, private context: vscode.ExtensionContext) {
-    super(uri);
+    super(uri, "cloudflared");
     this.context = context;
     this.tunnelName = "cloudflare-tunnel-vscode";
   }
@@ -49,10 +50,10 @@ export class CloudflaredClient extends ExecutableClient {
     const tunnels = await this.exec(listCommand);
     if (!tunnels.includes(this.tunnelName)) {
       const command = ["tunnel", "create", this.tunnelName];
-      this.log.appendLine(`Creating tunnel ${this.tunnelName}`);
+      this.logger.info(`Creating tunnel ${this.tunnelName}`);
       await this.exec(command);
     }
-    this.log.appendLine(`Tunnel ${this.tunnelName} already exists`);
+    this.logger.info(`Tunnel ${this.tunnelName} already exists`);
   }
 
   async routeDns(hostname: string): Promise<void> {
@@ -64,7 +65,7 @@ export class CloudflaredClient extends ExecutableClient {
       this.tunnelName,
       hostname,
     ];
-    this.log.appendLine(
+    this.logger.info(
       `Creating route dns ${hostname} for tunnel ${this.tunnelName}`
     );
     const response = await this.exec(command);
@@ -88,7 +89,7 @@ export class CloudflaredClient extends ExecutableClient {
           const strData = data.toString();
           const lines = strData.split("\n");
           for (const line of lines) {
-            this.log.appendLine(line);
+            this.logger.info(line);
             const [, logLevel, ...extra] = line.split(" ");
             const info = extra
               .filter((word: string) => word && word !== " ")
