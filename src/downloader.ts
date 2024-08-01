@@ -4,13 +4,9 @@ import * as fs from "fs";
 import { getApi, FileDownloader } from "@microsoft/vscode-file-downloader-api";
 
 export class CloudflaredDownloader {
-  context: vscode.ExtensionContext;
+  constructor(private context: vscode.ExtensionContext) {}
 
-  constructor(context: vscode.ExtensionContext) {
-    this.context = context;
-  }
-
-  private async setPermissions(uri: vscode.Uri) {
+  private async setPermissions(uri: vscode.Uri): Promise<void> {
     fs.chmodSync(uri.fsPath, 0o750);
   }
 
@@ -50,6 +46,7 @@ export class CloudflaredDownloader {
     uri = await this.download(fileName);
     await this.setPermissions(uri);
     this.context.globalState.update("cloudflaredUri", uri);
+
     return uri;
   }
 }
