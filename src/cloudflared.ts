@@ -143,7 +143,9 @@ export class CloudflaredClient extends ExecutableClient {
 
     async logout() {
         const credentialsFile = this.context.globalState.get<string>('credentialsFile');
-        fs.unlinkSync(credentialsFile);
+        if (credentialsFile) {
+            fs.unlinkSync(credentialsFile);
+        }
         this.context.globalState.update('credentialsFile', undefined);
     }
 }
