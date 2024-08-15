@@ -1,7 +1,9 @@
+import { CloudflareTunnel, CloudflareTunnelStatus } from './tunnel';
 import * as vscode from "vscode";
 import { CloudflaredClient } from "./cloudflared";
 import { cloudflareTunnelGUI } from "./gui";
 import { showErrorMessage, showInformationMessage } from "./utils";
+import { cloudflareTunnelProvider } from "./providers/tunnels";
 
 async function version(cloudflared: CloudflaredClient) {
   const message = await cloudflared.version();
@@ -12,23 +14,20 @@ async function start(cloudflared: CloudflaredClient) {
   // Configuration
   const config = vscode.workspace.getConfiguration("cloudflaretunnel.tunnel");
   const defaultPort = config.get<number>("defaultPort", 8080);
-  const askForPort = config.get<boolean>("askForPort", true);
   const hostname = config.get<string>("hostname");
   const localHostname = config.get<string>("localHostname", "localhost");
   let port = defaultPort;
 
   // Port input
-  if (askForPort) {
-    const inputResponse = await vscode.window.showInputBox({
-      title: "Port number",
-      placeHolder: `Select a port. Default: ${defaultPort}`,
-      ignoreFocusOut: true,
-    });
-    if (!inputResponse) {
-      return;
-    }
-    port = inputResponse ? parseInt(inputResponse) : defaultPort;
+  const inputResponse = await vscode.window.showInputBox({
+    title: "Port number",
+    placeHolder: `Select a port. Default: ${defaultPort}`,
+    ignoreFocusOut: true,
+  });
+  if (!inputResponse) {
+    return;
   }
+  port = inputResponse ? parseInt(inputResponse) : defaultPort;
 
   try {
     cloudflareTunnelGUI.onStarting();
@@ -38,7 +37,13 @@ async function start(cloudflared: CloudflaredClient) {
       await cloudflared.createTunnel();
       await cloudflared.routeDns(hostname);
     }
+
+    const tunnel = new CloudflareTunnel(hostname || localHostname, port);
+    cloudflareTunnelProvider.addTunnel(tunnel);
+
     const tunnelUri = await cloudflared.start(url, hostname);
+    tunnel.tunnelUri = tunnelUri;
+    tunnel.status = CloudflareTunnelStatus.running;
     cloudflareTunnelGUI.onStart(url, tunnelUri);
 
     await showInformationMessage(

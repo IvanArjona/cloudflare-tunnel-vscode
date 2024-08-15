@@ -73,6 +73,35 @@
         "title": "Cloudflare Tunnel: Logout"
       }
     ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "cloudflaretunnel",
+          "title": "Cloudflare Tunnel",
+          "icon": "$(cloud)"
+        }
+      ]
+    },
+    "views": {
+      "cloudflaretunnel": [
+        {
+          "id": "cloudflaretunnel.list",
+          "name": "Tunnels",
+          "contextualTitle": "Cloudflare tunnels"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        { 
+          "command": "cloudflaretunnel.start",
+          "id": "cloudflaretunnel.list.add",
+          "group": "navigation",
+          "when": "view == cloudflaretunnel.list",
+          "icon": "$(cloud)"
+        }
+      ]
+    },
     "configuration": {
       "title": "Cloudflare Tunnel",
       "properties": {
@@ -80,11 +109,6 @@
           "type": "number",
           "default": "8080",
           "markdownDescription": "Default port number to expose in your local environment. Example: `8000`"
-        },
-        "cloudflaretunnel.tunnel.askForPort": {
-          "type": "boolean",
-          "default": true,
-          "description": "Ask for port every time you start the tunnel, even if default port is set."
         },
         "cloudflaretunnel.tunnel.hostname": {
           "type": "string",

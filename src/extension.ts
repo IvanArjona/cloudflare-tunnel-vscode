@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { CloudflaredClient } from "./cloudflared";
 import { CloudflaredDownloader } from "./downloader";
 import commands from "./commands";
+import { cloudflareTunnelProvider } from "./providers/tunnels";
 
 let cloudflared: CloudflaredClient;
 
@@ -22,6 +23,12 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(command);
   }
+
+  // Register providers
+  vscode.window.registerTreeDataProvider(
+    "cloudflaretunnel.list",
+    cloudflareTunnelProvider
+  );
 }
 
 // this method is called when your extension is deactivated
