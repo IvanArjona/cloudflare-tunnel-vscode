@@ -39,6 +39,8 @@ async function start(cloudflared: CloudflaredClient) {
     }
 
     const tunnel = new CloudflareTunnel(hostname || localHostname, port);
+    tunnel.subscribe(cloudflareTunnelProvider);
+
     cloudflareTunnelProvider.addTunnel(tunnel);
 
     const tunnelUri = await cloudflared.start(url, hostname);

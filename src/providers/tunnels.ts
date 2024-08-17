@@ -1,8 +1,12 @@
 import { CloudflareTunnel } from "../tunnel";
 import { TreeItem, CloudflareTunnelTreeItem } from "./treeItems";
 import { BaseProvider } from "./base";
+import { Subscriber } from "../types";
 
-export class CloudflareTunnelProvider extends BaseProvider<CloudflareTunnel> {
+export class CloudflareTunnelProvider
+  extends BaseProvider<CloudflareTunnel>
+  implements Subscriber
+{
   private tunnels: CloudflareTunnel[] = [];
 
   getTreeItem(tunnel: CloudflareTunnel | TreeItem): TreeItem {

@@ -1,4 +1,4 @@
-import { cloudflareTunnelProvider } from "./providers/tunnels";
+import { Subscriber } from './types';
 
 export enum CloudflareTunnelStatus {
   starting = "Starting",
@@ -9,11 +9,9 @@ export enum CloudflareTunnelStatus {
 export class CloudflareTunnel {
   tunnelUri: string = "";
   private _status: CloudflareTunnelStatus = CloudflareTunnelStatus.starting;
+  private subscribers: Subscriber[] = [];
 
-  constructor(
-    public hostname: string,
-    public port: number
-  ) { }
+  constructor(public hostname: string, public port: number) {}
 
   get url(): string {
     return `${this.hostname}:${this.port}`;
@@ -29,6 +27,14 @@ export class CloudflareTunnel {
 
   set status(value: CloudflareTunnelStatus) {
     this._status = value;
-    cloudflareTunnelProvider.refresh();
+    this.notifySubscribers();
+  }
+
+  subscribe(subscriber: Subscriber) {
+    this.subscribers.push(subscriber);
+  }
+
+  private notifySubscribers() {
+    this.subscribers.forEach(observer => observer.refresh());
   }
 }
