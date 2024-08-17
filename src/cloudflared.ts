@@ -34,9 +34,8 @@ abstract class ExecutableClient {
 export class CloudflaredClient extends ExecutableClient {
   tunnelName: string;
 
-  constructor(uri: vscode.Uri, private context: vscode.ExtensionContext) {
+  constructor(uri: vscode.Uri) {
     super(uri, "cloudflared");
-    this.context = context;
     this.tunnelName = "cloudflare-tunnel-vscode";
   }
 
@@ -73,10 +72,11 @@ export class CloudflaredClient extends ExecutableClient {
 
   async start(
     url: string,
-    hostname: string | undefined
+    hostname: string | undefined,
+    isLoggedIn: boolean
   ): Promise<[ChildProcess, string]> {
     let command = ["tunnel", "--url", url];
-    if (hostname && (await this.isLoggedIn())) {
+    if (hostname && isLoggedIn) {
       command = ["tunnel", "run", "--url", url, this.tunnelName];
     }
 
@@ -127,28 +127,25 @@ export class CloudflaredClient extends ExecutableClient {
     return process && !process.killed;
   }
 
-  async login() {
+  async login(): Promise<string> {
     const response = await this.exec(["login"]);
     if (response.includes("You have successfully logged in")) {
       const lines = response.split("\n");
       const credentialsFile = lines.find((line) => line.endsWith(".pem"));
-      this.context.globalState.update("credentialsFile", credentialsFile);
+      if (!credentialsFile) {
+        throw new Error("Credentials file not found");
+      }
+      return credentialsFile;
     } else if (response.startsWith("You have an existing certificate")) {
       throw new Error(response);
     }
+    throw new Error("Login failed");
   }
 
-  async isLoggedIn(): Promise<boolean> {
-    return Boolean(this.context.globalState.get<string>("credentialsFile"));
-  }
-
-  async logout() {
-    const credentialsFile =
-      this.context.globalState.get<string>("credentialsFile");
+  async logout(credentialsFile: string): Promise<void> {
     if (credentialsFile) {
       fs.unlinkSync(credentialsFile);
     }
-    this.context.globalState.update("credentialsFile", undefined);
   }
 }
 
