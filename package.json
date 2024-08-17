@@ -46,28 +46,34 @@
     "commands": [
       {
         "command": "cloudflaretunnel.version",
-        "title": "Cloudflare Tunnel: Get version"
+        "title": "Get version",
+        "category": "Cloudflare Tunnel"
       },
       {
         "command": "cloudflaretunnel.openPanel",
-        "title": "Cloudflare Tunnel: Open panel"
+        "title": "Open panel",
+        "category": "Cloudflare Tunnel"
       },
       {
         "command": "cloudflaretunnel.createTunnel",
-        "title": "Cloudflare Tunnel: Create Tunnel"
+        "title": "Create Tunnel",
+        "category": "Cloudflare Tunnel"
       },
       {
         "command": "cloudflaretunnel.stopTunnel",
-        "title": "Cloudflare Tunnel: Stop Tunnel",
-        "icon": "$(debug-stop)"
+        "title": "Stop Tunnel",
+        "icon": "$(debug-stop)",
+        "category": "Cloudflare Tunnel"
       },
       {
         "command": "cloudflaretunnel.login",
-        "title": "Cloudflare Tunnel: Login"
+        "title": "Login",
+        "category": "Cloudflare Tunnel"
       },
       {
         "command": "cloudflaretunnel.logout",
-        "title": "Cloudflare Tunnel: Logout"
+        "title": "Logout",
+        "category": "Cloudflare Tunnel"
       }
     ],
     "viewsContainers": {
