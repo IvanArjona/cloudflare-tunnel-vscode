@@ -1,18 +1,22 @@
-import * as vscode from "vscode";
-import type { CloudflareTunnel } from "../tunnel";
+import { CloudflareTunnel } from "../tunnel";
+import { TreeItem, CloudflareTunnelTreeItem } from "./treeItems";
 import { BaseProvider } from "./base";
 
 export class CloudflareTunnelProvider extends BaseProvider<CloudflareTunnel> {
   private tunnels: CloudflareTunnel[] = [];
 
-  getTreeItem(tunnel: CloudflareTunnel): vscode.TreeItem {
-    const item = new vscode.TreeItem(tunnel.port.toString());
-    item.description = tunnel.label;
-    return item;
+  getTreeItem(tunnel: CloudflareTunnel | TreeItem): TreeItem {
+    if (tunnel instanceof CloudflareTunnel) {
+      return new CloudflareTunnelTreeItem(tunnel);
+    }
+    return tunnel;
   }
 
-  getChildren(tunnel?: CloudflareTunnel): CloudflareTunnel[] {
-    console.log(tunnel);
+  getChildren(tunnel?: TreeItem): CloudflareTunnel[] | TreeItem[] {
+    if (tunnel) {
+      const treeItem = this.getTreeItem(tunnel);
+      return treeItem.children;
+    }
     return this.tunnels;
   }
 

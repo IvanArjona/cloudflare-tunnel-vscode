@@ -7,7 +7,7 @@ export enum CloudflareTunnelStatus {
 }
 
 export class CloudflareTunnel {
-  tunnelUri?: string;
+  tunnelUri: string = "";
   private _status: CloudflareTunnelStatus = CloudflareTunnelStatus.starting;
 
   constructor(
@@ -20,7 +20,7 @@ export class CloudflareTunnel {
   }
 
   get label(): string {
-    return `${this.url}\t${this.status}\t${this.tunnelUri || ""}`;
+    return `${this.url}\t${this.status}`;
   }
 
   get status(): CloudflareTunnelStatus {
