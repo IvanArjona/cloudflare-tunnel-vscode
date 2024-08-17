@@ -19,10 +19,16 @@ export class CloudflareTunnelTreeItem extends TreeItem {
         ? vscode.TreeItemCollapsibleState.Expanded
         : vscode.TreeItemCollapsibleState.None;
 
-    super(tunnel.port.toString(), collapsibleState);
+    super(tunnel.url, collapsibleState);
 
     this.description = tunnel.label;
     this.contextValue = tunnel.status;
+    const iconColor = new vscode.ThemeColor("charts.orange");
+    this.iconPath = new vscode.ThemeIcon("cloud", iconColor);
+
+    if (tunnel.status === CloudflareTunnelStatus.starting) {
+      this.iconPath = new vscode.ThemeIcon("sync~spin");
+    }
 
     if (tunnel.status === CloudflareTunnelStatus.running) {
       const uriTreeItem = new CloudflareTunnelUriTreeItem(tunnel);

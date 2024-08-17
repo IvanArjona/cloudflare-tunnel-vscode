@@ -23,23 +23,25 @@ export class CloudflareTunnelStatusBar implements Subscriber {
     }
   }
 
-  updateStatusBarItem(
-    text: string,
-    tooltip: vscode.MarkdownString | null = null
-  ) {
+  refresh() {
+    const tunnels = cloudflareTunnelProvider.tunnels;
+    const numTunnels = cloudflareTunnelProvider.runningTunnels().length;
+    const text =
+      "Cloudflare Tunnel" + (numTunnels >= 1 ? ` ${numTunnels}` : "");
+    const tooltipText = tunnels
+      .map((tunnel) => {
+        return (
+          tunnel.label +
+          (tunnel.status === "Running"
+            ? `\t $(cloud) [${tunnel.tunnelUri.slice(8)}](${tunnel.tunnelUri})`
+            : "")
+        );
+      })
+      .join("\n\n---\n\n");
+    const tooltip = new vscode.MarkdownString(tooltipText, true);
+
     this.statusBarItem.text = `$(cloud) ${text}`;
     this.statusBarItem.tooltip = tooltip || text;
-  }
-
-  refresh() {
-    const numTunnels = cloudflareTunnelProvider.tunnels.length;
-    const text = "Cloudflare Tunnel" + (numTunnels >= 1 ? ` ${numTunnels}` : "");
-    const url = "url";
-    const hostname = "hostname";
-    const tooltip = new vscode.MarkdownString(
-      `Cloudflare Tunnel is running\n\nLocal: \`${url}\`\n\nRemote: \`${hostname}\`\n\n[Open in browser](${hostname})`
-    );
-    this.updateStatusBarItem(text, tooltip);
   }
 }
 

@@ -1,4 +1,4 @@
-import { CloudflareTunnel } from "../tunnel";
+import { CloudflareTunnel, CloudflareTunnelStatus } from "../tunnel";
 import { TreeItem, CloudflareTunnelTreeItem } from "./treeItems";
 import { BaseProvider } from "./base";
 import { Subscriber } from "../types";
@@ -37,6 +37,10 @@ export class CloudflareTunnelProvider
 
   get tunnels(): CloudflareTunnel[] {
     return this._tunnels;
+  }
+
+  runningTunnels(): CloudflareTunnel[] {
+    return this._tunnels.filter((tunnel) => tunnel.status === CloudflareTunnelStatus.running);
   }
 }
 
