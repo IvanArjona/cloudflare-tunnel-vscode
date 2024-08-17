@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
+import { Subscriber } from "../types";
+import { cloudflareTunnelProvider } from "../providers/tunnels";
 
-export class CloudflareTunnelGUI {
+export class CloudflareTunnelStatusBar implements Subscriber {
   statusBarItem: vscode.StatusBarItem;
 
   constructor() {
@@ -8,7 +10,8 @@ export class CloudflareTunnelGUI {
       vscode.StatusBarAlignment.Right,
       Number.MAX_SAFE_INTEGER
     );
-    this.onStop();
+    this.statusBarItem.command = "cloudflaretunnel.openPanel";
+    this.refresh();
     this.showStatusBarItem();
   }
 
@@ -22,42 +25,22 @@ export class CloudflareTunnelGUI {
 
   updateStatusBarItem(
     text: string,
-    icon: string,
-    command: string | undefined = undefined,
     tooltip: vscode.MarkdownString | null = null
   ) {
-    this.statusBarItem.command = command;
-    this.statusBarItem.text = `$(${icon}) ${text}`;
+    this.statusBarItem.text = `$(cloud) ${text}`;
     this.statusBarItem.tooltip = tooltip || text;
   }
 
-  onStarting() {
-    this.updateStatusBarItem("Starting Cloudflare Tunnel", "sync");
-  }
-
-  onStopping() {
-    this.updateStatusBarItem("Stopping Cloudflare Tunnel", "sync");
-  }
-
-  onStart(url: string, hostname: string) {
+  refresh() {
+    const numTunnels = cloudflareTunnelProvider.tunnels.length;
+    const text = "Cloudflare Tunnel" + (numTunnels >= 1 ? ` ${numTunnels}` : "");
+    const url = "url";
+    const hostname = "hostname";
     const tooltip = new vscode.MarkdownString(
       `Cloudflare Tunnel is running\n\nLocal: \`${url}\`\n\nRemote: \`${hostname}\`\n\n[Open in browser](${hostname})`
     );
-    this.updateStatusBarItem(
-      "Stop Cloudflare Tunnel",
-      "cloud",
-      "cloudflaretunnel.stop",
-      tooltip
-    );
-  }
-
-  onStop() {
-    this.updateStatusBarItem(
-      "Start Cloudflare Tunnel",
-      "cloud",
-      "cloudflaretunnel.start"
-    );
+    this.updateStatusBarItem(text, tooltip);
   }
 }
 
-export const cloudflareTunnelGUI = new CloudflareTunnelGUI();
+export const cloudflareTunnelStatusBar = new CloudflareTunnelStatusBar();

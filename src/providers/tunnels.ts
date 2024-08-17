@@ -7,7 +7,7 @@ export class CloudflareTunnelProvider
   extends BaseProvider<CloudflareTunnel>
   implements Subscriber
 {
-  private tunnels: CloudflareTunnel[] = [];
+  private _tunnels: CloudflareTunnel[] = [];
 
   getTreeItem(tunnel: CloudflareTunnel | TreeItem): TreeItem {
     if (tunnel instanceof CloudflareTunnel) {
@@ -21,12 +21,16 @@ export class CloudflareTunnelProvider
       const treeItem = this.getTreeItem(tunnel);
       return treeItem.children;
     }
-    return this.tunnels;
+    return this._tunnels;
   }
 
   addTunnel(tunnel: CloudflareTunnel): void {
-    this.tunnels.push(tunnel);
+    this._tunnels.push(tunnel);
     this.refresh();
+  }
+
+  get tunnels(): CloudflareTunnel[] {
+    return this._tunnels;
   }
 }
 

@@ -49,6 +49,10 @@
         "title": "Cloudflare Tunnel: Get version"
       },
       {
+        "command": "cloudflaretunnel.openPanel",
+        "title": "Cloudflare Tunnel: Open panel"
+      },
+      {
         "command": "cloudflaretunnel.start",
         "title": "Cloudflare Tunnel: Start"
       },

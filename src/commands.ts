@@ -1,9 +1,14 @@
 import { CloudflareTunnel, CloudflareTunnelStatus } from './tunnel';
 import * as vscode from "vscode";
 import { CloudflaredClient } from "./cloudflared";
-import { cloudflareTunnelGUI } from "./gui";
+import { cloudflareTunnelStatusBar } from "./statusbar/statusbar";
 import { showErrorMessage, showInformationMessage } from "./utils";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
+
+async function openPanel(cloudflared: CloudflaredClient) {
+  console.log(cloudflared);
+  await vscode.commands.executeCommand("cloudflaretunnel.list.focus");
+}
 
 async function version(cloudflared: CloudflaredClient) {
   const message = await cloudflared.version();
@@ -30,8 +35,6 @@ async function start(cloudflared: CloudflaredClient) {
   port = inputResponse ? parseInt(inputResponse) : defaultPort;
 
   try {
-    cloudflareTunnelGUI.onStarting();
-
     const url = `${localHostname}:${port}`;
     if (hostname) {
       await cloudflared.createTunnel();
@@ -40,29 +43,25 @@ async function start(cloudflared: CloudflaredClient) {
 
     const tunnel = new CloudflareTunnel(hostname || localHostname, port);
     tunnel.subscribe(cloudflareTunnelProvider);
+    tunnel.subscribe(cloudflareTunnelStatusBar);
 
     cloudflareTunnelProvider.addTunnel(tunnel);
 
     const tunnelUri = await cloudflared.start(url, hostname);
     tunnel.tunnelUri = tunnelUri;
     tunnel.status = CloudflareTunnelStatus.running;
-    cloudflareTunnelGUI.onStart(url, tunnelUri);
 
     await showInformationMessage(
       "Your quick Tunnel has been created!",
       tunnelUri
     );
   } catch (ex) {
-    cloudflareTunnelGUI.onStop();
     showErrorMessage(ex);
   }
 }
 
 async function stop(cloudflared: CloudflaredClient) {
-  cloudflareTunnelGUI.onStopping();
-
   await cloudflared.stop();
-  cloudflareTunnelGUI.onStop();
 
   const message = "Cloudflare tunnel stopped";
   showInformationMessage(message);
@@ -104,6 +103,6 @@ async function logout(cloudflared: CloudflaredClient) {
   }
 }
 
-const commands = [version, start, stop, isRunning, getUrl, login, logout];
+const commands = [openPanel, version, start, stop, isRunning, getUrl, login, logout];
 
 export default commands;
