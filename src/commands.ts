@@ -78,6 +78,16 @@ async function stopTunnel(cloudflared: CloudflaredClient, tunnel: CloudflareTunn
   showInformationMessage(message);
 }
 
+async function openTunnelExternal(cloudflared: CloudflaredClient, tunnel: CloudflareTunnel) {
+  const uri = vscode.Uri.parse(tunnel.tunnelUri);
+  vscode.env.openExternal(uri);
+}
+
+async function copyTunnelUriToClipboard(cloudflared: CloudflaredClient, tunnel: CloudflareTunnel) {
+  console.log(cloudflared);
+  vscode.env.clipboard.writeText(tunnel.tunnelUri);
+}
+
 async function login(cloudflared: CloudflaredClient) {
   try {
     await cloudflared.login();
@@ -107,6 +117,8 @@ const commands = [
   version,
   createTunnel,
   stopTunnel,
+  openTunnelExternal,
+  copyTunnelUriToClipboard,
   login,
   logout,
 ];

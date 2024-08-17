@@ -66,6 +66,18 @@
         "category": "Cloudflare Tunnel"
       },
       {
+        "command": "cloudflaretunnel.openTunnelExternal",
+        "title": "Open Tunnel in browser",
+        "icon": "$(globe)",
+        "category": "Cloudflare Tunnel"
+      },
+      {
+        "command": "cloudflaretunnel.copyTunnelUriToClipboard",
+        "title": "Copy Tunnel uri to clipboard",
+        "icon": "$(clippy)",
+        "category": "Cloudflare Tunnel"
+      },
+      {
         "command": "cloudflaretunnel.login",
         "title": "Login",
         "category": "Cloudflare Tunnel"
@@ -107,6 +119,16 @@
       "view/item/context": [
         {
           "command": "cloudflaretunnel.stopTunnel",
+          "group": "inline",
+          "when": "view == cloudflaretunnel.list && viewItem == Running"
+        },
+        {
+          "command": "cloudflaretunnel.openTunnelExternal",
+          "group": "inline",
+          "when": "view == cloudflaretunnel.list && viewItem == Running"
+        },
+        {
+          "command": "cloudflaretunnel.copyTunnelUriToClipboard",
           "group": "inline",
           "when": "view == cloudflaretunnel.list && viewItem == Running"
         }
