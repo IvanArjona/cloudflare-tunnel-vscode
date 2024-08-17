@@ -1,24 +1,19 @@
 import * as vscode from "vscode";
-import { CloudflaredClient } from "./cloudflared";
-import { CloudflaredDownloader } from "./downloader";
+import { CloudflaredClient, initCloudflaredClient } from "./cloudflared";
 import commands from "./commands";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
 
 let cloudflared: CloudflaredClient;
 
 export async function activate(context: vscode.ExtensionContext) {
-  // Download cloudflared
-  const cloudflaredDownloader = new CloudflaredDownloader(context);
-  const cloudflaredUri = await cloudflaredDownloader.get();
-
   // Setup Cloudflared client
-  cloudflared = new CloudflaredClient(cloudflaredUri, context);
+  cloudflared = await initCloudflaredClient(context);
 
   // Activate commands
-  for (const callable of commands) {
-    const callback = callable.bind(null, cloudflared);
+  for (let callback of commands) {
+    callback = callback.bind(null, context);
     const command = vscode.commands.registerCommand(
-      `cloudflaretunnel.${callable.name}`,
+      `cloudflaretunnel.${callback.name}`,
       callback
     );
     context.subscriptions.push(command);

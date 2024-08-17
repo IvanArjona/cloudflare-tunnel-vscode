@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import { ChildProcess, execFileSync, spawn } from "child_process";
 import { OutputChannelLogger } from "./logger";
+import { CloudflaredDownloader } from "./downloader";
 
 abstract class ExecutableClient {
   protected logger: OutputChannelLogger;
@@ -149,4 +150,18 @@ export class CloudflaredClient extends ExecutableClient {
     }
     this.context.globalState.update("credentialsFile", undefined);
   }
+}
+
+export let cloudflared: CloudflaredClient;
+
+export async function initCloudflaredClient(
+  context: vscode.ExtensionContext
+): Promise<CloudflaredClient> {
+  // Download cloudflared
+  const cloudflaredDownloader = new CloudflaredDownloader(context);
+  const cloudflaredUri = await cloudflaredDownloader.get();
+
+  // Setup Cloudflared client
+  cloudflared = new CloudflaredClient(cloudflaredUri, context);
+  return cloudflared;
 }

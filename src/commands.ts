@@ -1,21 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CloudflareTunnel, CloudflareTunnelStatus } from "./tunnel";
 import * as vscode from "vscode";
-import { CloudflaredClient } from "./cloudflared";
+import { cloudflared } from "./cloudflared";
 import { cloudflareTunnelStatusBar } from "./statusbar/statusbar";
 import { showErrorMessage, showInformationMessage } from "./utils";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
+import { Command } from "./types";
 
-async function openPanel(cloudflared: CloudflaredClient) {
-  console.log(cloudflared);
+async function openPanel(context: vscode.ExtensionContext) {
   await vscode.commands.executeCommand("cloudflaretunnel.list.focus");
 }
 
-async function version(cloudflared: CloudflaredClient) {
+async function version(context: vscode.ExtensionContext): Promise<void> {
   const message = await cloudflared.version();
   showInformationMessage(message);
 }
 
-async function createTunnel(cloudflared: CloudflaredClient) {
+async function createTunnel(context: vscode.ExtensionContext): Promise<void> {
   // Configuration
   const config = vscode.workspace.getConfiguration("cloudflaretunnel.tunnel");
   const defaultPort = config.get<number>("defaultPort", 8080);
@@ -65,7 +66,10 @@ async function createTunnel(cloudflared: CloudflaredClient) {
   }
 }
 
-async function stopTunnel(cloudflared: CloudflaredClient, tunnel: CloudflareTunnel) {
+async function stopTunnel(
+  context: vscode.ExtensionContext,
+  tunnel: CloudflareTunnel
+): Promise<void> {
   const process = tunnel.process;
   if (!process) {
     showErrorMessage("Tunnel is not running");
@@ -78,17 +82,23 @@ async function stopTunnel(cloudflared: CloudflaredClient, tunnel: CloudflareTunn
   showInformationMessage(message);
 }
 
-async function openTunnelExternal(cloudflared: CloudflaredClient, tunnel: CloudflareTunnel) {
+async function openTunnelExternal(
+  context: vscode.ExtensionContext,
+  tunnel: CloudflareTunnel
+): Promise<void> {
   const uri = vscode.Uri.parse(tunnel.tunnelUri);
   vscode.env.openExternal(uri);
 }
 
-async function copyTunnelUriToClipboard(cloudflared: CloudflaredClient, tunnel: CloudflareTunnel) {
+async function copyTunnelUriToClipboard(
+  context: vscode.ExtensionContext,
+  tunnel: CloudflareTunnel
+): Promise<void> {
   console.log(cloudflared);
   vscode.env.clipboard.writeText(tunnel.tunnelUri);
 }
 
-async function login(cloudflared: CloudflaredClient) {
+async function login(context: vscode.ExtensionContext): Promise<void> {
   try {
     await cloudflared.login();
     showInformationMessage("Logged in successfully");
@@ -97,7 +107,7 @@ async function login(cloudflared: CloudflaredClient) {
   }
 }
 
-async function logout(cloudflared: CloudflaredClient) {
+async function logout(context: vscode.ExtensionContext): Promise<void> {
   const isLoggedIn = await cloudflared.isLoggedIn();
 
   if (isLoggedIn) {
@@ -112,7 +122,7 @@ async function logout(cloudflared: CloudflaredClient) {
   }
 }
 
-const commands = [
+const commands: Command[] = [
   openPanel,
   version,
   createTunnel,
