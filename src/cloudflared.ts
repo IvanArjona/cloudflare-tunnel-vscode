@@ -31,8 +31,6 @@ abstract class ExecutableClient {
 }
 
 export class CloudflaredClient extends ExecutableClient {
-  runProcess!: ChildProcess;
-  url: string | null = null;
   tunnelName: string;
 
   constructor(uri: vscode.Uri, private context: vscode.ExtensionContext) {
@@ -72,20 +70,19 @@ export class CloudflaredClient extends ExecutableClient {
     console.log(response);
   }
 
-  async start(url: string, hostname: string | undefined): Promise<string> {
-    if (await this.isRunning()) {
-      await this.stop();
-    }
-
+  async start(
+    url: string,
+    hostname: string | undefined
+  ): Promise<[ChildProcess, string]> {
     let command = ["tunnel", "--url", url];
     if (hostname && (await this.isLoggedIn())) {
       command = ["tunnel", "run", "--url", url, this.tunnelName];
     }
 
-    this.runProcess = await this.spawn(command);
+    const process: ChildProcess = await this.spawn(command);
     return new Promise((resolve, reject) => {
-      if (this.runProcess.stdout && this.runProcess.stderr) {
-        this.runProcess.stderr.on("data", (data) => {
+      if (process.stdout && process.stderr) {
+        process.stderr.on("data", (data) => {
           const strData = data.toString();
           const lines = strData.split("\n");
           for (const line of lines) {
@@ -99,19 +96,17 @@ export class CloudflaredClient extends ExecutableClient {
               const link = info
                 .split(" ")
                 .find((word: string) => word.endsWith(".trycloudflare.com"));
-              resolve(link);
-              this.url = link;
+              resolve([process, link]);
             }
             if (hostname) {
               const isPropagating = info.includes("registered connIndex");
               if (isPropagating) {
                 const url = "https://" + hostname;
-                this.url = url;
-                resolve(url);
+                resolve([process, url]);
               }
             }
             if (logLevel === "ERR") {
-              this.stop();
+              this.stop(process);
               reject(info);
             }
           }
@@ -120,20 +115,15 @@ export class CloudflaredClient extends ExecutableClient {
     });
   }
 
-  async stop(): Promise<boolean> {
-    if (await this.isRunning()) {
-      this.url = null;
-      return this.runProcess.kill();
+  async stop(process: ChildProcess): Promise<boolean> {
+    if (await this.isRunning(process)) {
+      return process.kill();
     }
     return false;
   }
 
-  async isRunning(): Promise<boolean> {
-    return this.runProcess && !this.runProcess.killed;
-  }
-
-  async getUrl(): Promise<string | null> {
-    return this.url;
+  async isRunning(process: ChildProcess): Promise<boolean> {
+    return process && !process.killed;
   }
 
   async login() {

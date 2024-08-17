@@ -1,3 +1,3 @@
 export interface Subscriber {
-    refresh: () => void;
+  refresh: () => void;
 }

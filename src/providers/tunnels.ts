@@ -29,6 +29,12 @@ export class CloudflareTunnelProvider
     this.refresh();
   }
 
+  removeTunnel(tunnel: CloudflareTunnel): void {
+    const index = this._tunnels.indexOf(tunnel);
+    this._tunnels.splice(index, 1);
+    this.refresh();
+  }
+
   get tunnels(): CloudflareTunnel[] {
     return this._tunnels;
   }

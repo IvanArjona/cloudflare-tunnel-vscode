@@ -16,7 +16,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Activate commands
   for (const callable of commands) {
-    const callback = async () => callable(cloudflared);
+    const callback = callable.bind(null, cloudflared);
     const command = vscode.commands.registerCommand(
       `cloudflaretunnel.${callable.name}`,
       callback
@@ -33,5 +33,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export async function deactivate() {
-  await cloudflared.stop();
+  const tunnels = cloudflareTunnelProvider.tunnels;
+  for (const tunnel of tunnels) {
+    if (tunnel.process) {
+      await cloudflared.stop(tunnel.process);
+    }
+  }
 }

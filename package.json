@@ -53,20 +53,13 @@
         "title": "Cloudflare Tunnel: Open panel"
       },
       {
-        "command": "cloudflaretunnel.start",
-        "title": "Cloudflare Tunnel: Start"
+        "command": "cloudflaretunnel.createTunnel",
+        "title": "Cloudflare Tunnel: Create Tunnel"
       },
       {
-        "command": "cloudflaretunnel.stop",
-        "title": "Cloudflare Tunnel: Stop"
-      },
-      {
-        "command": "cloudflaretunnel.isRunning",
-        "title": "Cloudflare Tunnel: Is running?"
-      },
-      {
-        "command": "cloudflaretunnel.getUrl",
-        "title": "Cloudflare Tunnel: Get url"
+        "command": "cloudflaretunnel.stopTunnel",
+        "title": "Cloudflare Tunnel: Stop Tunnel",
+        "icon": "$(debug-stop)"
       },
       {
         "command": "cloudflaretunnel.login",
@@ -98,11 +91,18 @@
     "menus": {
       "view/title": [
         { 
-          "command": "cloudflaretunnel.start",
+          "command": "cloudflaretunnel.createTunnel",
           "id": "cloudflaretunnel.list.add",
           "group": "navigation",
           "when": "view == cloudflaretunnel.list",
           "icon": "$(cloud)"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "cloudflaretunnel.stopTunnel",
+          "group": "inline",
+          "when": "view == cloudflaretunnel.list && viewItem == Running"
         }
       ]
     },

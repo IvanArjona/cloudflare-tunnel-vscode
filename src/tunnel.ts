@@ -1,3 +1,4 @@
+import { ChildProcess } from 'child_process';
 import { Subscriber } from './types';
 
 export enum CloudflareTunnelStatus {
@@ -8,6 +9,7 @@ export enum CloudflareTunnelStatus {
 
 export class CloudflareTunnel {
   tunnelUri: string = "";
+  process?: ChildProcess;
   private _status: CloudflareTunnelStatus = CloudflareTunnelStatus.starting;
   private subscribers: Subscriber[] = [];
 
@@ -32,9 +34,12 @@ export class CloudflareTunnel {
 
   subscribe(subscriber: Subscriber) {
     this.subscribers.push(subscriber);
+    this.notifySubscribers();
   }
 
   private notifySubscribers() {
-    this.subscribers.forEach(observer => observer.refresh());
+    for (const subscriber of this.subscribers) {
+      subscriber.refresh();
+    }
   }
 }

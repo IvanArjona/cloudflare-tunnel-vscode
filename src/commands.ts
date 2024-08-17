@@ -1,4 +1,4 @@
-import { CloudflareTunnel, CloudflareTunnelStatus } from './tunnel';
+import { CloudflareTunnel, CloudflareTunnelStatus } from "./tunnel";
 import * as vscode from "vscode";
 import { CloudflaredClient } from "./cloudflared";
 import { cloudflareTunnelStatusBar } from "./statusbar/statusbar";
@@ -15,7 +15,7 @@ async function version(cloudflared: CloudflaredClient) {
   showInformationMessage(message);
 }
 
-async function start(cloudflared: CloudflaredClient) {
+async function createTunnel(cloudflared: CloudflaredClient) {
   // Configuration
   const config = vscode.workspace.getConfiguration("cloudflaretunnel.tunnel");
   const defaultPort = config.get<number>("defaultPort", 8080);
@@ -42,41 +42,40 @@ async function start(cloudflared: CloudflaredClient) {
     }
 
     const tunnel = new CloudflareTunnel(hostname || localHostname, port);
+    cloudflareTunnelProvider.addTunnel(tunnel);
     tunnel.subscribe(cloudflareTunnelProvider);
     tunnel.subscribe(cloudflareTunnelStatusBar);
 
-    cloudflareTunnelProvider.addTunnel(tunnel);
+    try {
+      const [process, tunnelUri] = await cloudflared.start(url, hostname);
+      tunnel.process = process;
+      tunnel.tunnelUri = tunnelUri;
+      tunnel.status = CloudflareTunnelStatus.running;
 
-    const tunnelUri = await cloudflared.start(url, hostname);
-    tunnel.tunnelUri = tunnelUri;
-    tunnel.status = CloudflareTunnelStatus.running;
-
-    await showInformationMessage(
-      "Your quick Tunnel has been created!",
-      tunnelUri
-    );
+      await showInformationMessage(
+        "Your quick Tunnel has been created!",
+        tunnelUri
+      );
+    } catch (ex) {
+      cloudflareTunnelProvider.removeTunnel(tunnel);
+      showErrorMessage(ex);
+    }
   } catch (ex) {
     showErrorMessage(ex);
   }
 }
 
-async function stop(cloudflared: CloudflaredClient) {
-  await cloudflared.stop();
+async function stopTunnel(cloudflared: CloudflaredClient, tunnel: CloudflareTunnel) {
+  const process = tunnel.process;
+  if (!process) {
+    showErrorMessage("Tunnel is not running");
+    return;
+  }
+  await cloudflared.stop(process);
+  cloudflareTunnelProvider.removeTunnel(tunnel);
 
   const message = "Cloudflare tunnel stopped";
   showInformationMessage(message);
-}
-
-async function isRunning(cloudflared: CloudflaredClient) {
-  const response = await cloudflared.isRunning();
-  const message = `Cloudflare tunnel is${response ? "" : " not"} running`;
-  showInformationMessage(message);
-}
-
-async function getUrl(cloudflared: CloudflaredClient) {
-  const url = await cloudflared.getUrl();
-  const message = `Cloudflare tunnel is${url ? "" : " not"} running`;
-  showInformationMessage(message, url);
 }
 
 async function login(cloudflared: CloudflaredClient) {
@@ -103,6 +102,13 @@ async function logout(cloudflared: CloudflaredClient) {
   }
 }
 
-const commands = [openPanel, version, start, stop, isRunning, getUrl, login, logout];
+const commands = [
+  openPanel,
+  version,
+  createTunnel,
+  stopTunnel,
+  login,
+  logout,
+];
 
 export default commands;

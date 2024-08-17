@@ -22,6 +22,7 @@ export class CloudflareTunnelTreeItem extends TreeItem {
     super(tunnel.port.toString(), collapsibleState);
 
     this.description = tunnel.label;
+    this.contextValue = tunnel.status;
 
     if (tunnel.status === CloudflareTunnelStatus.running) {
       const uriTreeItem = new CloudflareTunnelUriTreeItem(tunnel);
@@ -33,5 +34,6 @@ export class CloudflareTunnelTreeItem extends TreeItem {
 export class CloudflareTunnelUriTreeItem extends TreeItem {
   constructor(public tunnel: CloudflareTunnel) {
     super(tunnel.tunnelUri, vscode.TreeItemCollapsibleState.None);
+    this.contextValue = tunnel.status;
   }
 }
