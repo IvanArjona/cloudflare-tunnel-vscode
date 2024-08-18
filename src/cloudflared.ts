@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { ChildProcess, execFileSync, spawn } from "child_process";
 import { OutputChannelLogger } from "./logger";
 import { CloudflaredDownloader } from "./downloader";
+import { CloudflareTunnel } from "./tunnel";
 
 abstract class ExecutableClient {
   protected logger: OutputChannelLogger;
@@ -70,14 +71,24 @@ export class CloudflaredClient extends ExecutableClient {
     console.log(response);
   }
 
-  async start(
-    url: string,
-    hostname: string | undefined,
-    isLoggedIn: boolean
+  async startTunnel(
+    tunnel: CloudflareTunnel,
+    credentialsFile: string | null
   ): Promise<[ChildProcess, string]> {
+    const url = tunnel.url;
+    const hostname = tunnel.hostname;
+
     let command = ["tunnel", "--url", url];
-    if (hostname && isLoggedIn) {
-      command = ["tunnel", "run", "--url", url, this.tunnelName];
+    if (hostname && credentialsFile) {
+      command = [
+        "tunnel",
+        "run",
+        "--url",
+        url,
+        "--origincert",
+        credentialsFile,
+        this.tunnelName,
+      ];
     }
 
     const process: ChildProcess = await this.spawn(command);
@@ -159,6 +170,6 @@ export async function initCloudflaredClient(
   const cloudflaredUri = await cloudflaredDownloader.get();
 
   // Setup Cloudflared client
-  cloudflared = new CloudflaredClient(cloudflaredUri, context);
+  cloudflared = new CloudflaredClient(cloudflaredUri);
   return cloudflared;
 }

@@ -1,10 +1,10 @@
-import { ChildProcess } from 'child_process';
-import { Subscriber } from './types';
+import { ChildProcess } from "child_process";
+import { Subscriber } from "./types";
 
 export enum CloudflareTunnelStatus {
   starting = "Starting",
   running = "Running",
-  stopping = "Stopping"
+  stopping = "Stopping",
 }
 
 export class CloudflareTunnel {
@@ -13,10 +13,14 @@ export class CloudflareTunnel {
   private _status: CloudflareTunnelStatus = CloudflareTunnelStatus.starting;
   private subscribers: Subscriber[] = [];
 
-  constructor(public hostname: string, public port: number) {}
+  constructor(
+    public localHostname: string,
+    public port: number,
+    public hostname: string | null,
+  ) {}
 
   get url(): string {
-    return `${this.hostname}:${this.port}`;
+    return `${this.localHostname}:${this.port}`;
   }
 
   get label(): string {

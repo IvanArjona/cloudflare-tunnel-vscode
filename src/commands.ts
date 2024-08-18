@@ -20,7 +20,7 @@ async function createTunnel(context: vscode.ExtensionContext): Promise<void> {
   // Configuration
   const config = vscode.workspace.getConfiguration("cloudflaretunnel.tunnel");
   const defaultPort = config.get<number>("defaultPort", 8080);
-  const hostname = config.get<string>("hostname");
+  const hostname = config.get<string>("hostname") || null;
   const localHostname = config.get<string>("localHostname", "localhost");
   let port = defaultPort;
 
@@ -36,20 +36,22 @@ async function createTunnel(context: vscode.ExtensionContext): Promise<void> {
   port = inputResponse ? parseInt(inputResponse) : defaultPort;
 
   try {
-    const url = `${localHostname}:${port}`;
     if (hostname) {
       await cloudflared.createTunnel();
       await cloudflared.routeDns(hostname);
     }
 
-    const tunnel = new CloudflareTunnel(hostname || localHostname, port);
+    const tunnel = new CloudflareTunnel(localHostname, port, hostname);
     cloudflareTunnelProvider.addTunnel(tunnel);
     tunnel.subscribe(cloudflareTunnelProvider);
     tunnel.subscribe(cloudflareTunnelStatusBar);
 
     try {
-      const isLoggedIn = Boolean(context.globalState.get<string>("credentialsFile"));
-      const [process, tunnelUri] = await cloudflared.start(url, hostname, isLoggedIn);
+      const credentialsFile = context.globalState.get<string>("credentialsFile") || null;
+      const [process, tunnelUri] = await cloudflared.startTunnel(
+        tunnel,
+        credentialsFile
+      );
       tunnel.process = process;
       tunnel.tunnelUri = tunnelUri;
       tunnel.status = CloudflareTunnelStatus.running;
