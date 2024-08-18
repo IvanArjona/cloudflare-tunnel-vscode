@@ -9,11 +9,19 @@ abstract class ExecutableClient {
   protected logger: OutputChannelLogger;
 
   constructor(private uri: vscode.Uri, private fileName: string) {
-    this.logger = new OutputChannelLogger();
+    this.logger = this.initializeLogger();
+  }
+
+  private initializeLogger(): OutputChannelLogger {
+    return new OutputChannelLogger();
+  }
+
+  private async getPath(): Promise<string> {
+    return this.uri.fsPath;
   }
 
   async exec(args: string[]): Promise<string> {
-    const path = this.uri.fsPath;
+    const path = await this.getPath();
     try {
       this.logger.info(`$ ${this.fileName} ${args.join(" ")}`);
       const stdout = execFileSync(path, args).toString();
@@ -26,7 +34,7 @@ abstract class ExecutableClient {
   }
 
   async spawn(args: string[]): Promise<ChildProcess> {
-    const path = this.uri.fsPath;
+    const path = await this.getPath();
     this.logger.info(`$$ ${this.fileName} ${args.join(" ")}`);
     return spawn(path, args);
   }
@@ -45,12 +53,10 @@ export class CloudflaredClient extends ExecutableClient {
   }
 
   async createTunnel(): Promise<void> {
-    const listCommand = ["tunnel", "list"];
-    const tunnels = await this.exec(listCommand);
+    const tunnels = await this.exec(["tunnel", "list"]);
     if (!tunnels.includes(this.tunnelName)) {
-      const command = ["tunnel", "create", this.tunnelName];
       this.logger.info(`Creating tunnel ${this.tunnelName}`);
-      await this.exec(command);
+      await this.exec(["tunnel", "create", this.tunnelName]);
     }
     this.logger.info(`Tunnel ${this.tunnelName} already exists`);
   }
@@ -67,31 +73,34 @@ export class CloudflaredClient extends ExecutableClient {
     this.logger.info(
       `Creating route dns ${hostname} for tunnel ${this.tunnelName}`
     );
-    const response = await this.exec(command);
-    console.log(response);
+    await this.exec(command);
   }
 
   async startTunnel(
     tunnel: CloudflareTunnel,
     credentialsFile: string | null
   ): Promise<[ChildProcess, string]> {
-    const url = tunnel.url;
-    const hostname = tunnel.hostname;
+    const command = this.buildStartTunnelCommand(tunnel, credentialsFile);
+    const process = await this.spawn(command);
+    const tunnelUri = await this.handleStartTunnelProcess(process, tunnel.hostname);
+    return [process, tunnelUri];
+  }
 
-    let command = ["tunnel", "--url", url];
-    if (hostname && credentialsFile) {
-      command = [
-        "tunnel",
-        "run",
-        "--url",
-        url,
-        "--origincert",
-        credentialsFile,
-        this.tunnelName,
-      ];
+  private buildStartTunnelCommand(
+    tunnel: CloudflareTunnel,
+    credentialsFile: string | null
+  ): string[] {
+    const command = ["tunnel", "--url", tunnel.url];
+    if (tunnel.hostname && credentialsFile) {
+      command.push("run", "--origincert", credentialsFile, this.tunnelName);
     }
+    return command;
+  }
 
-    const process: ChildProcess = await this.spawn(command);
+  private handleStartTunnelProcess(
+    process: ChildProcess,
+    hostname: string | null
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       if (process.stdout && process.stderr) {
         process.stderr.on("data", (data) => {
@@ -103,19 +112,14 @@ export class CloudflaredClient extends ExecutableClient {
             const info = extra
               .filter((word: string) => word && word !== " ")
               .join(" ");
-            const hasLink = info.includes(".trycloudflare.com");
-            if (hasLink) {
-              const link = info
+            if (info.includes(".trycloudflare.com")) {
+              const tunnelUri = info
                 .split(" ")
                 .find((word: string) => word.endsWith(".trycloudflare.com"));
-              resolve([process, link]);
+              resolve(tunnelUri);
             }
-            if (hostname) {
-              const isPropagating = info.includes("registered connIndex");
-              if (isPropagating) {
-                const url = "https://" + hostname;
-                resolve([process, url]);
-              }
+            if (hostname && info.includes("registered connIndex")) {
+              resolve(`https://${hostname}`);
             }
             if (logLevel === "ERR") {
               this.stop(process);
