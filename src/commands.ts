@@ -20,20 +20,37 @@ async function createTunnel(context: vscode.ExtensionContext): Promise<void> {
   // Configuration
   const config = vscode.workspace.getConfiguration("cloudflaretunnel.tunnel");
   const defaultPort = config.get<number>("defaultPort", 8080);
-  const hostname = config.get<string>("hostname") || null;
+  const defaultHostname = config.get<string>("defaultHostname", "");
   const localHostname = config.get<string>("localHostname", "localhost");
+  const credentialsFile =
+    context.globalState.get<string | null>("credentialsFile", null);
+  const isLoggedIn = credentialsFile !== undefined;
   let port = defaultPort;
+  let hostname = null;
 
   // Port input
   const inputResponse = await vscode.window.showInputBox({
     title: "Port number",
-    placeHolder: `Select a port. Default: ${defaultPort}`,
+    value: defaultPort.toString(),
+    prompt: "Select your local port number.",
     ignoreFocusOut: true,
-  });
+  }) || defaultPort.toString();
   if (!inputResponse) {
     return;
   }
   port = inputResponse ? parseInt(inputResponse) : defaultPort;
+
+  // Hostname input
+  if (isLoggedIn) {
+    hostname = await vscode.window.showInputBox({
+      title: "Hostname",
+      value: defaultHostname,
+      placeHolder: "Enter a hostname",
+      ignoreFocusOut: true,
+      prompt:
+        "Your domain hostname. If not specified anything, it will generate a `.trycloudflare.com` subdomain. Make sure to login and give proper permissions before changing this setting. Example: `mytunnel.mydomain.com`",
+    }) || null;
+  }
 
   try {
     if (hostname) {
@@ -47,11 +64,7 @@ async function createTunnel(context: vscode.ExtensionContext): Promise<void> {
     tunnel.subscribe(cloudflareTunnelStatusBar);
 
     try {
-      const credentialsFile = context.globalState.get<string>("credentialsFile") || null;
-      const [process, tunnelUri] = await cloudflared.startTunnel(
-        tunnel,
-        credentialsFile
-      );
+      const [process, tunnelUri] = await cloudflared.startTunnel(tunnel);
       tunnel.process = process;
       tunnel.tunnelUri = tunnelUri;
       tunnel.status = CloudflareTunnelStatus.running;

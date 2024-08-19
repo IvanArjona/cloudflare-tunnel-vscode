@@ -142,7 +142,7 @@
           "default": "8080",
           "markdownDescription": "Default port number to expose in your local environment. Example: `8000`"
         },
-        "cloudflaretunnel.tunnel.hostname": {
+        "cloudflaretunnel.tunnel.defaultHostname": {
           "type": "string",
           "markdownDescription": "Your domain hostname. If not specified anything, it will generate a `.trycloudflare.com` subdomain. Make sure to login and give proper permissions before changing this setting. Example: `mytunnel.mydomain.com`"
         },
@@ -154,7 +154,7 @@
         "cloudflaretunnel.gui.showStatusBarItem": {
           "type": "boolean",
           "default": true,
-          "description": "Show an item in the status bar to start or stop the tunnel."
+          "description": "Show an item in the status bar with the number of running tunnels."
         }
       }
     }

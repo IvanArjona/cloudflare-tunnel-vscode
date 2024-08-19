@@ -76,23 +76,20 @@ export class CloudflaredClient extends ExecutableClient {
     await this.exec(command);
   }
 
-  async startTunnel(
-    tunnel: CloudflareTunnel,
-    credentialsFile: string | null
-  ): Promise<[ChildProcess, string]> {
-    const command = this.buildStartTunnelCommand(tunnel, credentialsFile);
+  async startTunnel(tunnel: CloudflareTunnel): Promise<[ChildProcess, string]> {
+    const command = this.buildStartTunnelCommand(tunnel);
     const process = await this.spawn(command);
-    const tunnelUri = await this.handleStartTunnelProcess(process, tunnel.hostname);
+    const tunnelUri = await this.handleStartTunnelProcess(
+      process,
+      tunnel.hostname
+    );
     return [process, tunnelUri];
   }
 
-  private buildStartTunnelCommand(
-    tunnel: CloudflareTunnel,
-    credentialsFile: string | null
-  ): string[] {
+  private buildStartTunnelCommand(tunnel: CloudflareTunnel): string[] {
     const command = ["tunnel", "--url", tunnel.url];
-    if (tunnel.hostname && credentialsFile) {
-      command.push("run", "--origincert", credentialsFile, this.tunnelName);
+    if (!tunnel.isQuickTunnel) {
+      command.push("run", this.tunnelName);
     }
     return command;
   }
@@ -118,7 +115,7 @@ export class CloudflaredClient extends ExecutableClient {
                 .find((word: string) => word.endsWith(".trycloudflare.com"));
               resolve(tunnelUri);
             }
-            if (hostname && info.includes("registered connIndex")) {
+            if (hostname && info.includes("connIndex=")) {
               resolve(`https://${hostname}`);
             }
             if (logLevel === "ERR") {

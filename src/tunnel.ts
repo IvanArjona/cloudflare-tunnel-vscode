@@ -16,7 +16,7 @@ export class CloudflareTunnel {
   constructor(
     public localHostname: string,
     public port: number,
-    public hostname: string | null,
+    public hostname: string | null
   ) {}
 
   get url(): string {
@@ -29,6 +29,10 @@ export class CloudflareTunnel {
 
   get status(): CloudflareTunnelStatus {
     return this._status;
+  }
+
+  get isQuickTunnel(): boolean {
+    return this.hostname === null;
   }
 
   set status(value: CloudflareTunnelStatus) {
