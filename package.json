@@ -55,6 +55,12 @@
         "category": "Cloudflare Tunnel"
       },
       {
+        "command": "cloudflaretunnel.openOutputChannel",
+        "title": "Output channel",
+        "category": "Cloudflare Tunnel",
+        "icon": "$(output-view-icon)"
+      },
+      {
         "command": "cloudflaretunnel.createTunnel",
         "title": "Create Tunnel",
         "category": "Cloudflare Tunnel"
@@ -108,12 +114,17 @@
     },
     "menus": {
       "view/title": [
-        { 
+        {
           "command": "cloudflaretunnel.createTunnel",
           "id": "cloudflaretunnel.list.add",
           "group": "navigation",
-          "when": "view == cloudflaretunnel.list",
-          "icon": "$(cloud)"
+          "when": "view == cloudflaretunnel.list"
+        },
+        {
+          "command": "cloudflaretunnel.openOutputChannel",
+          "id": "cloudflaretunnel.openOutputChannel",
+          "group": "navigation",
+          "when": "view == cloudflaretunnel.list"
         }
       ],
       "view/item/context": [

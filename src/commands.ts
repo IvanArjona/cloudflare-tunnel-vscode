@@ -6,9 +6,14 @@ import { cloudflareTunnelStatusBar } from "./statusbar/statusbar";
 import { showErrorMessage, showInformationMessage } from "./utils";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
 import { Command } from "./types";
+import { logger } from "./logger";
 
 async function openPanel(context: vscode.ExtensionContext) {
   await vscode.commands.executeCommand("cloudflaretunnel.list.focus");
+}
+
+async function openOutputChannel(context: vscode.ExtensionContext) {
+  logger.show();
 }
 
 async function version(context: vscode.ExtensionContext): Promise<void> {
@@ -169,6 +174,7 @@ async function logout(context: vscode.ExtensionContext): Promise<void> {
 
 const commands: Command[] = [
   openPanel,
+  openOutputChannel,
   version,
   createTunnel,
   stopTunnel,

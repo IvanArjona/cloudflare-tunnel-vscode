@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
 
-export enum LogLevel {
+enum LogLevel {
   info = "info",
   debug = "debug",
   error = "error",
   warn = "warn",
 }
 
-export class OutputChannelLogger {
+class OutputChannelLogger {
   protected outputChannel: vscode.OutputChannel;
 
   constructor() {
@@ -44,4 +44,10 @@ export class OutputChannelLogger {
   warn(message: string): void {
     return this.log(message, LogLevel.warn);
   }
+
+  show(): void {
+    this.outputChannel.show();
+  }
 }
+
+export const logger = new OutputChannelLogger();
