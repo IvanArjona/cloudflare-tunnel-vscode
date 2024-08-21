@@ -132,7 +132,6 @@ async function copyTunnelUriToClipboard(
   context: vscode.ExtensionContext,
   tunnel: CloudflareTunnel
 ): Promise<void> {
-  console.log(cloudflared);
   vscode.env.clipboard.writeText(tunnel.tunnelUri);
 }
 
