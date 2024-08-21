@@ -34,6 +34,18 @@ async function createTunnel(context: vscode.ExtensionContext): Promise<void> {
     value: defaultPort.toString(),
     prompt: "Select your local port number.",
     ignoreFocusOut: true,
+    validateInput: (value: string) => {
+      if (!value) {
+        return;
+      }
+      const port = parseInt(value);
+      if (!port) {
+        return "Please enter a valid port number.";
+      }
+      if (port < 1 || port > 65535) {
+        return "Port number must be between 1 and 65535.";
+      }
+    }
   }) || defaultPort.toString();
   if (!inputResponse) {
     return;
@@ -49,6 +61,14 @@ async function createTunnel(context: vscode.ExtensionContext): Promise<void> {
       ignoreFocusOut: true,
       prompt:
         "Your domain hostname. If not specified anything, it will generate a `.trycloudflare.com` subdomain. Make sure to login and give proper permissions before changing this setting. Example: `mytunnel.mydomain.com`",
+      validateInput: (value: string) => {
+        if (!value) {
+          return;
+        }
+        if (!/^[a-zA-Z0-9.-]+$/.test(value)) {
+          return "Invalid hostname. Only alphanumeric characters, dots, and dashes are allowed.";
+        }
+      }
     }) || null;
   }
 
