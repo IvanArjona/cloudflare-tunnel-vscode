@@ -29,7 +29,10 @@ export async function deactivate() {
   const tunnels = cloudflareTunnelProvider.tunnels;
   for (const tunnel of tunnels) {
     if (tunnel.process) {
-      await cloudflared.stop(tunnel.process);
+      await cloudflared.stop(tunnel);
+    }
+    if (!tunnel.isQuickTunnel) {
+      await cloudflared.deleteTunnel(tunnel);
     }
   }
 }

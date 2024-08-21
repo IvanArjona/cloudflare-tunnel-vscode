@@ -31,6 +31,10 @@ export class CloudflareTunnel {
     return this._status;
   }
 
+  get tunnelName(): string {
+    return `cloudflare-tunnel-vscode-${this.port}`;
+  }
+
   get isQuickTunnel(): boolean {
     return this.hostname === null;
   }

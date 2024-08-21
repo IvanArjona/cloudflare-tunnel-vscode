@@ -53,25 +53,24 @@ async function createTunnel(context: vscode.ExtensionContext): Promise<void> {
   }
 
   try {
+    const tunnel = new CloudflareTunnel(localHostname, port, hostname);
+
     if (hostname) {
-      await cloudflared.createTunnel();
-      await cloudflared.routeDns(hostname);
+      await cloudflared.createTunnel(tunnel);
+      await cloudflared.routeDns(tunnel);
     }
 
-    const tunnel = new CloudflareTunnel(localHostname, port, hostname);
     cloudflareTunnelProvider.addTunnel(tunnel);
     tunnel.subscribe(cloudflareTunnelProvider);
     tunnel.subscribe(cloudflareTunnelStatusBar);
 
     try {
-      const [process, tunnelUri] = await cloudflared.startTunnel(tunnel);
-      tunnel.process = process;
-      tunnel.tunnelUri = tunnelUri;
+      await cloudflared.startTunnel(tunnel);
       tunnel.status = CloudflareTunnelStatus.running;
 
       await showInformationMessage(
         "Your quick Tunnel has been created!",
-        tunnelUri
+        tunnel.tunnelUri
       );
     } catch (ex) {
       cloudflareTunnelProvider.removeTunnel(tunnel);
@@ -86,12 +85,9 @@ async function stopTunnel(
   context: vscode.ExtensionContext,
   tunnel: CloudflareTunnel
 ): Promise<void> {
-  const process = tunnel.process;
-  if (!process) {
-    showErrorMessage("Tunnel is not running");
-    return;
-  }
-  await cloudflared.stop(process);
+  await cloudflared.stop(tunnel);
+  await cloudflared.deleteTunnel(tunnel);
+
   cloudflareTunnelProvider.removeTunnel(tunnel);
 
   const message = "Cloudflare tunnel stopped";

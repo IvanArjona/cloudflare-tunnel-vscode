@@ -41,63 +41,59 @@ abstract class ExecutableClient {
 }
 
 export class CloudflaredClient extends ExecutableClient {
-  tunnelName: string;
-
   constructor(uri: vscode.Uri) {
     super(uri, "cloudflared");
-    this.tunnelName = "cloudflare-tunnel-vscode";
   }
 
   async version(): Promise<string> {
     return await this.exec(["--version"]);
   }
 
-  async createTunnel(): Promise<void> {
+  async createTunnel(tunnel: CloudflareTunnel): Promise<void> {
+    const tunnelName = tunnel.tunnelName;
     const tunnels = await this.exec(["tunnel", "list"]);
-    if (!tunnels.includes(this.tunnelName)) {
-      this.logger.info(`Creating tunnel ${this.tunnelName}`);
-      await this.exec(["tunnel", "create", this.tunnelName]);
+    if (!tunnels.includes(tunnelName)) {
+      this.logger.info(`Creating tunnel ${tunnelName}`);
+      await this.exec(["tunnel", "create", tunnelName]);
     }
-    this.logger.info(`Tunnel ${this.tunnelName} already exists`);
+    this.logger.info(`Tunnel ${tunnelName} already exists`);
   }
 
-  async routeDns(hostname: string): Promise<void> {
+  async deleteTunnel(tunnel: CloudflareTunnel): Promise<void> {
+    await this.exec(["tunnel", "delete", "-f", tunnel.tunnelName]);
+  }
+
+  async routeDns(tunnel: CloudflareTunnel): Promise<void> {
     const command = [
       "tunnel",
       "route",
       "dns",
       "--overwrite-dns",
-      this.tunnelName,
-      hostname,
+      tunnel.tunnelName,
+      tunnel.hostname!,
     ];
     this.logger.info(
-      `Creating route dns ${hostname} for tunnel ${this.tunnelName}`
+      `Creating route dns ${tunnel.hostname} for tunnel ${tunnel.tunnelName}`
     );
     await this.exec(command);
   }
 
-  async startTunnel(tunnel: CloudflareTunnel): Promise<[ChildProcess, string]> {
+  async startTunnel(tunnel: CloudflareTunnel): Promise<void> {
     const command = this.buildStartTunnelCommand(tunnel);
-    const process = await this.spawn(command);
-    const tunnelUri = await this.handleStartTunnelProcess(
-      process,
-      tunnel.hostname
-    );
-    return [process, tunnelUri];
+    tunnel.process = await this.spawn(command);
+    tunnel.tunnelUri = await this.handleStartTunnelProcess(tunnel);
   }
 
   private buildStartTunnelCommand(tunnel: CloudflareTunnel): string[] {
     const command = ["tunnel", "--url", tunnel.url];
     if (!tunnel.isQuickTunnel) {
-      command.push("run", this.tunnelName);
+      command.push("run", tunnel.tunnelName);
     }
     return command;
   }
 
-  private handleStartTunnelProcess(
-    process: ChildProcess,
-    hostname: string | null
-  ): Promise<string> {
+  private handleStartTunnelProcess(tunnel: CloudflareTunnel): Promise<string> {
+    const process = tunnel.process!;
     return new Promise((resolve, reject) => {
       if (process.stdout && process.stderr) {
         process.stderr.on("data", (data) => {
@@ -115,11 +111,11 @@ export class CloudflaredClient extends ExecutableClient {
                 .find((word: string) => word.endsWith(".trycloudflare.com"));
               resolve(tunnelUri);
             }
-            if (hostname && info.includes("connIndex=")) {
-              resolve(`https://${hostname}`);
+            if (tunnel.hostname && info.includes("connIndex=")) {
+              resolve(`https://${tunnel.hostname}`);
             }
             if (logLevel === "ERR") {
-              this.stop(process);
+              this.stop(tunnel);
               reject(info);
             }
           }
@@ -128,8 +124,10 @@ export class CloudflaredClient extends ExecutableClient {
     });
   }
 
-  async stop(process: ChildProcess): Promise<boolean> {
-    if (await this.isRunning(process)) {
+  async stop(tunnel: CloudflareTunnel): Promise<boolean> {
+    const process = tunnel.process;
+
+    if (process && await this.isRunning(process)) {
       return process.kill();
     }
     return false;
