@@ -124,7 +124,8 @@ async function openTunnelExternal(
   tunnel: CloudflareTunnel
 ): Promise<void> {
   const uri = vscode.Uri.parse(tunnel.tunnelUri);
-  vscode.env.openExternal(uri);
+  const externalUri = await vscode.env.asExternalUri(uri);
+  await vscode.env.openExternal(externalUri);
 }
 
 async function copyTunnelUriToClipboard(
