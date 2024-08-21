@@ -1,5 +1,5 @@
 import { CloudflareTunnel, CloudflareTunnelStatus } from "../tunnel";
-import { TreeItem, CloudflareTunnelTreeItem } from "./treeItems";
+import { CloudflareTunnelTreeItem } from "./treeItems";
 import { BaseProvider } from "./base";
 import { Subscriber } from "../types";
 
@@ -9,17 +9,13 @@ export class CloudflareTunnelProvider
 {
   private _tunnels: CloudflareTunnel[] = [];
 
-  getTreeItem(tunnel: CloudflareTunnel | TreeItem): TreeItem {
-    if (tunnel instanceof CloudflareTunnel) {
-      return new CloudflareTunnelTreeItem(tunnel);
-    }
-    return tunnel;
+  getTreeItem(tunnel: CloudflareTunnel): CloudflareTunnelTreeItem {
+    return new CloudflareTunnelTreeItem(tunnel);
   }
 
-  getChildren(tunnel?: TreeItem): CloudflareTunnel[] | TreeItem[] {
+  getChildren(tunnel?: CloudflareTunnel): CloudflareTunnel[] {
     if (tunnel) {
-      const treeItem = this.getTreeItem(tunnel);
-      return treeItem.children;
+      return [];
     }
     return this._tunnels;
   }
@@ -40,7 +36,9 @@ export class CloudflareTunnelProvider
   }
 
   runningTunnels(): CloudflareTunnel[] {
-    return this._tunnels.filter((tunnel) => tunnel.status === CloudflareTunnelStatus.running);
+    return this._tunnels.filter(
+      (tunnel) => tunnel.status === CloudflareTunnelStatus.running
+    );
   }
 }
 

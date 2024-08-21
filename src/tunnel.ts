@@ -24,7 +24,16 @@ export class CloudflareTunnel {
   }
 
   get label(): string {
-    return `${this.url}\t${this.status}`;
+    return this.status === CloudflareTunnelStatus.running
+      ? this.shortTunnelUri
+      : this.url;
+  }
+
+  get description(): string {
+    const quickTunnel = this.isQuickTunnel ? "Quick Tunnel" : null;
+    return [this.url, this.status, quickTunnel, this.tunnelName]
+      .filter(Boolean)
+      .join("\t");
   }
 
   get status(): CloudflareTunnelStatus {
@@ -32,11 +41,18 @@ export class CloudflareTunnel {
   }
 
   get tunnelName(): string {
+    if (this.isQuickTunnel) {
+      return "";
+    }
     return `cloudflare-tunnel-vscode-${this.port}`;
   }
 
   get isQuickTunnel(): boolean {
     return this.hostname === null;
+  }
+
+  get shortTunnelUri(): string {
+    return this.tunnelUri.slice(8);
   }
 
   set status(value: CloudflareTunnelStatus) {

@@ -1,45 +1,35 @@
 import * as vscode from "vscode";
 import { CloudflareTunnel, CloudflareTunnelStatus } from "../tunnel";
 
-export abstract class TreeItem extends vscode.TreeItem {
-  public children: CloudflareTunnelTreeItem[] = [];
-
-  constructor(
-    label: string,
-    collapsibleState: vscode.TreeItemCollapsibleState
-  ) {
-    super(label, collapsibleState);
-  }
-}
-
-export class CloudflareTunnelTreeItem extends TreeItem {
+export class CloudflareTunnelTreeItem extends vscode.TreeItem {
   constructor(public tunnel: CloudflareTunnel) {
-    const collapsibleState =
-      tunnel.status === CloudflareTunnelStatus.running
-        ? vscode.TreeItemCollapsibleState.Expanded
-        : vscode.TreeItemCollapsibleState.None;
+    super(tunnel.label, vscode.TreeItemCollapsibleState.None);
+  }
 
-    super(tunnel.url, collapsibleState);
+  override description: string = this.tunnel.description;
+  override contextValue: string = this.tunnel.status;
 
-    this.description = tunnel.label;
-    this.contextValue = tunnel.status;
-    const iconColor = new vscode.ThemeColor("charts.orange");
-    this.iconPath = new vscode.ThemeIcon("cloud", iconColor);
-
-    if (tunnel.status === CloudflareTunnelStatus.starting) {
-      this.iconPath = new vscode.ThemeIcon("sync~spin");
+  // @ts-expect-error: TS2611
+  override get iconPath(): vscode.ThemeIcon {
+    if (this.tunnel.status === CloudflareTunnelStatus.starting) {
+      return new vscode.ThemeIcon("sync~spin");
     }
 
-    if (tunnel.status === CloudflareTunnelStatus.running) {
-      const uriTreeItem = new CloudflareTunnelUriTreeItem(tunnel);
-      this.children.push(uriTreeItem);
-    }
+    const runningIconColor = new vscode.ThemeColor("charts.orange");
+    return new vscode.ThemeIcon("cloud", runningIconColor);
   }
-}
 
-export class CloudflareTunnelUriTreeItem extends TreeItem {
-  constructor(public tunnel: CloudflareTunnel) {
-    super(tunnel.tunnelUri, vscode.TreeItemCollapsibleState.None);
-    this.contextValue = tunnel.status;
+  // @ts-expect-error: TS2611
+  override get tooltip(): vscode.MarkdownString {
+    const tooltip = new vscode.MarkdownString();
+    tooltip.appendMarkdown(`\n\n**Local**: [http://${this.tunnel.url}](${this.tunnel.url})`);
+    tooltip.appendMarkdown(`\n\n**Tunnel**: [${this.tunnel.shortTunnelUri}](${this.tunnel.tunnelUri})`);
+    tooltip.appendMarkdown(`\n\n**Status**: ${this.tunnel.status}`);
+    if (this.tunnel.isQuickTunnel) {
+      tooltip.appendText('\n\nQuick Tunnel');
+    } else {
+      tooltip.appendMarkdown(`\n\n**Tunnel name**: ${this.tunnel.tunnelName}`);
+    }
+    return tooltip;
   }
 }

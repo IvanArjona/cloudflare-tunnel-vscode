@@ -7,14 +7,9 @@ export abstract class BaseProvider<T> implements vscode.TreeDataProvider<T> {
     return this.changeEvent.event;
   }
 
-  abstract getTreeItem(
-    element: T | vscode.TreeItem
-  ): vscode.TreeItem | Thenable<vscode.TreeItem>;
+  abstract getTreeItem(element: T): vscode.TreeItem | Thenable<vscode.TreeItem>;
 
-  // @ts-expect-error: Returns a vscode.TreeItem[] instead of a T[]
-  abstract getChildren(
-    element?: T | vscode.TreeItem
-  ): vscode.ProviderResult<T[] | vscode.TreeItem[]>;
+  abstract getChildren(element?: T): vscode.ProviderResult<T[]>;
 
   refresh(): void {
     this.changeEvent.fire();
