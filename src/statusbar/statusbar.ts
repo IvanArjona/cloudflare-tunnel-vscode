@@ -31,9 +31,9 @@ export class CloudflareTunnelStatusBar implements Subscriber {
     const tooltipText = tunnels
       .map((tunnel) => {
         return (
-          tunnel.label +
+          tunnel.url +
           (tunnel.status === "Running"
-            ? `\t $(cloud) [${tunnel.tunnelUri.slice(8)}](${tunnel.tunnelUri})`
+            ? `\t $(cloud) [${tunnel.shortTunnelUri}](${tunnel.tunnelUri})`
             : "")
         );
       })

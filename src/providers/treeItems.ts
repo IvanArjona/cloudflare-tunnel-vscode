@@ -22,11 +22,15 @@ export class CloudflareTunnelTreeItem extends vscode.TreeItem {
   // @ts-expect-error: TS2611
   override get tooltip(): vscode.MarkdownString {
     const tooltip = new vscode.MarkdownString();
-    tooltip.appendMarkdown(`\n\n**Local**: [http://${this.tunnel.url}](${this.tunnel.url})`);
-    tooltip.appendMarkdown(`\n\n**Tunnel**: [${this.tunnel.shortTunnelUri}](${this.tunnel.tunnelUri})`);
+    tooltip.appendMarkdown(
+      `\n\n**Local**: [${this.tunnel.url}](http://${this.tunnel.url})`
+    );
+    tooltip.appendMarkdown(
+      `\n\n**Tunnel**: [${this.tunnel.shortTunnelUri}](${this.tunnel.tunnelUri})`
+    );
     tooltip.appendMarkdown(`\n\n**Status**: ${this.tunnel.status}`);
     if (this.tunnel.isQuickTunnel) {
-      tooltip.appendText('\n\nQuick Tunnel');
+      tooltip.appendText("\n\nQuick Tunnel");
     } else {
       tooltip.appendMarkdown(`\n\n**Tunnel name**: ${this.tunnel.tunnelName}`);
     }
