@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import { logger } from "../logger";
-import { CloudflaredDownloader } from "../downloader";
+import { CloudflaredDownloader } from "./downloader";
 import { CloudflareTunnel } from "../tunnel";
 import { ExecutableClient } from "./executable";
 

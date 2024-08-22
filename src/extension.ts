@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { CloudflaredClient, initCloudflaredClient } from "./cmd/cloudflared";
-import commands from "./commands";
+import { commands } from "./commands/index";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
 
 let cloudflared: CloudflaredClient;
