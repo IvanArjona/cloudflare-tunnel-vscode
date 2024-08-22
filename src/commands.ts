@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CloudflareTunnel, CloudflareTunnelStatus } from "./tunnel";
 import * as vscode from "vscode";
-import { cloudflared } from "./cloudflared";
+import { cloudflared } from "./cmd/cloudflared";
 import { cloudflareTunnelStatusBar } from "./statusbar/statusbar";
 import { showErrorMessage, showInformationMessage } from "./utils";
 import { cloudflareTunnelProvider } from "./providers/tunnels";

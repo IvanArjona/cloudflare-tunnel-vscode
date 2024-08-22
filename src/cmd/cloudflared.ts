@@ -1,36 +1,9 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
-import { ChildProcess, execFileSync, spawn } from "child_process";
-import { logger } from "./logger";
-import { CloudflaredDownloader } from "./downloader";
-import { CloudflareTunnel } from "./tunnel";
-
-abstract class ExecutableClient {
-  constructor(private uri: vscode.Uri, private fileName: string) {}
-
-  private async getPath(): Promise<string> {
-    return this.uri.fsPath;
-  }
-
-  async exec(args: string[]): Promise<string> {
-    const path = await this.getPath();
-    try {
-      logger.info(`$ ${this.fileName} ${args.join(" ")}`);
-      const stdout = execFileSync(path, args).toString();
-      logger.info(`> ${stdout}`);
-      return stdout;
-    } catch (error) {
-      logger.error(`Error executing command: ${error}`);
-      return "";
-    }
-  }
-
-  async spawn(args: string[]): Promise<ChildProcess> {
-    const path = await this.getPath();
-    logger.info(`$$ ${this.fileName} ${args.join(" ")}`);
-    return spawn(path, args);
-  }
-}
+import { logger } from "../logger";
+import { CloudflaredDownloader } from "../downloader";
+import { CloudflareTunnel } from "../tunnel";
+import { ExecutableClient } from "./executable";
 
 export class CloudflaredClient extends ExecutableClient {
   constructor(uri: vscode.Uri) {
@@ -117,16 +90,7 @@ export class CloudflaredClient extends ExecutableClient {
   }
 
   async stop(tunnel: CloudflareTunnel): Promise<boolean> {
-    const process = tunnel.process;
-
-    if (process && (await this.isRunning(process))) {
-      return process.kill();
-    }
-    return false;
-  }
-
-  async isRunning(process: ChildProcess): Promise<boolean> {
-    return process && !process.killed;
+    return await this.stopProcess(tunnel.process);
   }
 
   async login(): Promise<string> {
