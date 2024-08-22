@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import * as os from "os";
 import * as fs from "fs";
+import * as tar from "tar";
+import * as path from "path";
 import { getApi, FileDownloader } from "@microsoft/vscode-file-downloader-api";
 
 export class CloudflaredDownloader {
@@ -23,17 +25,46 @@ export class CloudflaredDownloader {
     );
   }
 
+  private async unzipDarwin(
+    fileName: string,
+    uri: vscode.Uri
+  ): Promise<vscode.Uri> {
+    const cwd = path.dirname(uri.fsPath);
+    await tar.x({
+      file: uri.fsPath,
+      cwd: path.dirname(uri.fsPath),
+      filter: (path) => path === "cloudflared",
+    });
+
+    // Renamed extracted "cloudflared" to fileName
+    const extractedFilePath = path.join(cwd, "cloudflared");
+    const renamedFilePath = path.join(cwd, fileName);
+    await fs.promises.rename(extractedFilePath, renamedFilePath);
+
+    return vscode.Uri.parse(renamedFilePath);
+  }
+
   private async download(fileName: string): Promise<vscode.Uri> {
-    const downloadUri = await this.getDownloadUri(fileName);
+    const downloadFileName = fileName.includes("darwin")
+      ? fileName + ".tgz"
+      : fileName;
+    const downloadUri = await this.getDownloadUri(downloadFileName);
     const fileDownloader: FileDownloader = await getApi();
 
-    return await vscode.window.withProgress<vscode.Uri>(
+    const uri = await vscode.window.withProgress<vscode.Uri>(
       {
         location: vscode.ProgressLocation.Window,
         title: "Downloading cloudfared client",
       },
-      () => fileDownloader.downloadFile(downloadUri, fileName, this.context)
+      () =>
+        fileDownloader.downloadFile(downloadUri, downloadFileName, this.context)
     );
+
+    if (downloadFileName === fileName) {
+      return uri;
+    }
+
+    return await this.unzipDarwin(fileName, uri);
   }
 
   async get(): Promise<vscode.Uri> {

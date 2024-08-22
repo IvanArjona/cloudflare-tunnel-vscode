@@ -188,7 +188,8 @@
     "@vscode/test-electron": "^2.4.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "tar": "^7.4.3"
   },
   "dependencies": {
     "@microsoft/vscode-file-downloader-api": "^1.0.1"
