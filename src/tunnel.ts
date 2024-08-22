@@ -1,5 +1,5 @@
 import { ChildProcess } from "child_process";
-import { Subscriber } from "./types";
+import { Publisher, Subscriber } from "./types";
 
 export enum CloudflareTunnelStatus {
   starting = "Starting",
@@ -7,7 +7,7 @@ export enum CloudflareTunnelStatus {
   stopping = "Stopping",
 }
 
-export class CloudflareTunnel {
+export class CloudflareTunnel implements Publisher {
   tunnelUri: string = "";
   process?: ChildProcess;
   private _status: CloudflareTunnelStatus = CloudflareTunnelStatus.starting;
@@ -60,12 +60,12 @@ export class CloudflareTunnel {
     this.notifySubscribers();
   }
 
-  subscribe(subscriber: Subscriber) {
+  subscribe(subscriber: Subscriber): void {
     this.subscribers.push(subscriber);
     this.notifySubscribers();
   }
 
-  private notifySubscribers() {
+  notifySubscribers(): void {
     for (const subscriber of this.subscribers) {
       subscriber.refresh();
     }
