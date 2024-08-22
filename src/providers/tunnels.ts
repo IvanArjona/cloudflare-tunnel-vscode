@@ -40,6 +40,14 @@ export class CloudflareTunnelProvider
       (tunnel) => tunnel.status === CloudflareTunnelStatus.running
     );
   }
+
+  hasPort(port: number): boolean {
+    return this._tunnels.some((tunnel) => tunnel.port === port);
+  }
+
+  hasHostname(hostname: string): boolean {
+    return this._tunnels.some((tunnel) => tunnel.hostname === hostname);
+  }
 }
 
 export const cloudflareTunnelProvider = new CloudflareTunnelProvider();
