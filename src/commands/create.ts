@@ -70,21 +70,38 @@ export async function createTunnel(
   try {
     const tunnel = new CloudflareTunnel(localHostname, port, hostname);
 
-    if (hostname) {
-      await cloudflared.createTunnel(tunnel);
-      await cloudflared.routeDns(tunnel);
-    }
-
     cloudflareTunnelProvider.addTunnel(tunnel);
     tunnel.subscribe(cloudflareTunnelProvider);
     tunnel.subscribe(cloudflareTunnelStatusBar);
 
     try {
-      await cloudflared.startTunnel(tunnel);
+      await vscode.window.withProgress<void>(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: `Starting cloudflare tunnel for ${tunnel.url}. [(Show logs)](command:cloudflaretunnel.openOutputChannel)\n`,
+          cancellable: true,
+        },
+        async (progress, token) => {
+          token.onCancellationRequested(() => {
+            cloudflared.stop(tunnel);
+            cloudflareTunnelProvider.removeTunnel(tunnel);
+          });
+
+          if (hostname) {
+            progress.report({ message: "Creating tunnel..." });
+            await cloudflared.createTunnel(tunnel);
+            progress.report({ message: "Creating route dns..." });
+            await cloudflared.routeDns(tunnel);
+          }
+          progress.report({ message: "Starting tunnel..." });
+          await cloudflared.startTunnel(tunnel);
+        }
+      );
+
       tunnel.status = CloudflareTunnelStatus.running;
 
       await showInformationMessage(
-        "Your quick Tunnel has been created!",
+        "Your Cloudflare Tunnel has been created!",
         tunnel.tunnelUri
       );
     } catch (ex) {

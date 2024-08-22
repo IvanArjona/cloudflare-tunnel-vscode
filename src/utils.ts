@@ -16,21 +16,21 @@ export function showErrorMessage(error: unknown) {
 
 export async function showInformationMessage(
   message: string,
-  link: string | null = null
+  url: string | null = null
 ) {
-  if (link) {
+  if (url) {
     const action = await vscode.window.showInformationMessage(
-      `${message}\n${link}`,
+      `${message}\n[${url}](${url})`,
       "Copy to clipboard",
       "Open in browser"
     );
 
     switch (action) {
       case "Copy to clipboard":
-        vscode.env.clipboard.writeText(link);
+        vscode.env.clipboard.writeText(url);
         break;
       case "Open in browser":
-        vscode.env.openExternal(vscode.Uri.parse(link));
+        vscode.env.openExternal(vscode.Uri.parse(url));
         break;
     }
   } else {
