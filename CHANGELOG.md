@@ -1,6 +1,14 @@
 # Change Log
 
-All notable changes to the "ngrok-for-vscode" extension will be documented in this file.
+All notable changes to the Cloudflare Tunnels for VSCode extension will be documented in this file.
+
+## [1.0.0] - 2024-08-22
+
+- Create multiple tunnels.
+- New tree view based interface.
+- Added support for Mac OS.
+- Improved error handling.
+- Increased log visibility.
 
 ## [0.3.4] - 2022-08-03
 

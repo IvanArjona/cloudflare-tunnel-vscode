@@ -35,6 +35,23 @@
     "remote",
     "http"
   ],
+  "badges": [
+    {
+      "url": "https://img.shields.io/visual-studio-marketplace/azure-devops/installs/total/IvanArjona.cloudflaretunnel?color=%23007ACC&logo=Visual%20Studio%20Code&logoColor=%23007ACC&style=for-the-badge",
+      "href": "https://marketplace.visualstudio.com/items?itemName=IvanArjona.cloudflaretunnel",
+      "description": "Downloads"
+    },
+    {
+      "url": "https://img.shields.io/visual-studio-marketplace/stars/IvanArjona.cloudflaretunnel?color=%23007ACC&logo=Visual%20Studio%20Code&logoColor=%23007ACC&style=for-the-badge",
+      "href": "https://marketplace.visualstudio.com/items?itemName=IvanArjona.cloudflaretunnel&ssr=false#review-details",
+      "description": "Downloads"
+    },
+    {
+      "url": "https://img.shields.io/visual-studio-marketplace/v/IvanArjona.cloudflaretunnel?color=%23007ACC&logo=Visual%20Studio%20Code&logoColor=%23007ACC&style=for-the-badge",
+      "href": "https://github.com/IvanArjona/cloudflare-tunnel-vscode/blob/master/CHANGELOG.md",
+      "description": "Rating"
+    }
+  ],
   "activationEvents": [
     "onStartupFinished"
   ],
