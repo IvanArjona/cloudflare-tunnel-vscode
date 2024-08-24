@@ -121,6 +121,18 @@
           "when": "view == cloudflaretunnel.list"
         },
         {
+          "command": "cloudflaretunnel.login",
+          "id": "cloudflaretunnel.list.login",
+          "group": "navigation",
+          "when": "view == cloudflaretunnel.list && !cloudflaretunnel.isLoggedIn"
+        },
+        {
+          "command": "cloudflaretunnel.logout",
+          "id": "cloudflaretunnel.list.logout",
+          "group": "navigation",
+          "when": "view == cloudflaretunnel.list && cloudflaretunnel.isLoggedIn"
+        },
+        {
           "command": "cloudflaretunnel.openOutputChannel",
           "id": "cloudflaretunnel.openOutputChannel",
           "group": "navigation",

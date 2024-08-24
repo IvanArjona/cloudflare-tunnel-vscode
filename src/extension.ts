@@ -22,6 +22,14 @@ export async function activate(context: vscode.ExtensionContext) {
     "cloudflaretunnel.list",
     cloudflareTunnelProvider
   );
+
+  // Context keys
+  vscode.commands.executeCommand("setContext", "cloudflaretunnel.isLoggedIn", isLoggedIn(context));
+}
+
+function isLoggedIn(context: vscode.ExtensionContext): boolean {
+  const credentialsFile = context.globalState.get<string>("credentialsFile");
+  return credentialsFile !== undefined;
 }
 
 // this method is called when your extension is deactivated

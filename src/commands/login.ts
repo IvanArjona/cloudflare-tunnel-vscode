@@ -2,10 +2,19 @@ import * as vscode from "vscode";
 import { cloudflared } from "../cmd/cloudflared";
 import { showErrorMessage, showInformationMessage } from "../utils";
 
+function updateCredentialsFile(context: vscode.ExtensionContext, credentialsFile?: string): void {
+  context.globalState.update("credentialsFile", credentialsFile);
+  vscode.commands.executeCommand(
+    "setContext",
+    "cloudflaretunnel.isLoggedIn",
+    credentialsFile !== undefined
+  );
+}
+
 export async function login(context: vscode.ExtensionContext): Promise<void> {
   try {
     const credentialsFile = await cloudflared.login();
-    context.globalState.update("credentialsFile", credentialsFile);
+    updateCredentialsFile(context, credentialsFile);
     showInformationMessage("Logged in successfully");
   } catch (error) {
     if (
@@ -14,9 +23,7 @@ export async function login(context: vscode.ExtensionContext): Promise<void> {
     ) {
       const words = error.message.split(" ");
       const credentialsFile = words.find((word) => word.endsWith(".pem"));
-      if (credentialsFile) {
-        context.globalState.update("credentialsFile", credentialsFile);
-      }
+      updateCredentialsFile(context, credentialsFile);
     }
     showErrorMessage(error);
   }
@@ -29,7 +36,6 @@ export async function logout(context: vscode.ExtensionContext): Promise<void> {
   if (isLoggedIn) {
     try {
       await cloudflared.logout(credentialsFile);
-      context.globalState.update("credentialsFile", undefined);
       showInformationMessage("Logged out successfully");
     } catch (ex) {
       showErrorMessage(ex);
@@ -37,4 +43,6 @@ export async function logout(context: vscode.ExtensionContext): Promise<void> {
   } else {
     showErrorMessage("You are not logged in");
   }
+
+  updateCredentialsFile(context);
 }
