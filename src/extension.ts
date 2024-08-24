@@ -2,10 +2,14 @@ import * as vscode from "vscode";
 import { CloudflaredClient, initCloudflaredClient } from "./cmd/cloudflared";
 import { commands } from "./commands/index";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
+import { LoginStorage } from "./storage/login";
 
 let cloudflared: CloudflaredClient;
 
 export async function activate(context: vscode.ExtensionContext) {
+  // Storage
+  LoginStorage.init(context);
+
   // Setup Cloudflared client
   cloudflared = await initCloudflaredClient(context);
 

@@ -1,20 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as vscode from "vscode";
 import { cloudflared } from "../cmd/cloudflared";
 import { showErrorMessage, showInformationMessage } from "../utils";
-
-function updateCredentialsFile(context: vscode.ExtensionContext, credentialsFile?: string): void {
-  context.globalState.update("credentialsFile", credentialsFile);
-  vscode.commands.executeCommand(
-    "setContext",
-    "cloudflaretunnel.isLoggedIn",
-    credentialsFile !== undefined
-  );
-}
+import { loginStorage } from "../storage/login";
 
 export async function login(context: vscode.ExtensionContext): Promise<void> {
   try {
     const credentialsFile = await cloudflared.login();
-    updateCredentialsFile(context, credentialsFile);
+    loginStorage.credentialsFile = credentialsFile;
     showInformationMessage("Logged in successfully");
   } catch (error) {
     if (
@@ -23,19 +16,18 @@ export async function login(context: vscode.ExtensionContext): Promise<void> {
     ) {
       const words = error.message.split(" ");
       const credentialsFile = words.find((word) => word.endsWith(".pem"));
-      updateCredentialsFile(context, credentialsFile);
+      loginStorage.credentialsFile = credentialsFile;
     }
     showErrorMessage(error);
   }
 }
 
 export async function logout(context: vscode.ExtensionContext): Promise<void> {
-  const credentialsFile = context.globalState.get<string>("credentialsFile");
-  const isLoggedIn = credentialsFile !== undefined;
+  loginStorage.isLoggedIn;
 
-  if (isLoggedIn) {
+  if (loginStorage.isLoggedIn) {
     try {
-      await cloudflared.logout(credentialsFile);
+      await cloudflared.logout(loginStorage.credentialsFile!);
       showInformationMessage("Logged out successfully");
     } catch (ex) {
       showErrorMessage(ex);
@@ -44,5 +36,5 @@ export async function logout(context: vscode.ExtensionContext): Promise<void> {
     showErrorMessage("You are not logged in");
   }
 
-  updateCredentialsFile(context);
+  loginStorage.credentialsFile = undefined;
 }
