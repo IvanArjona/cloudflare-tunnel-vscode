@@ -11,12 +11,12 @@ export class CloudflareTunnelTreeItem extends vscode.TreeItem {
 
   // @ts-expect-error: TS2611
   override get iconPath(): vscode.ThemeIcon {
-    if (this.tunnel.status === CloudflareTunnelStatus.starting) {
-      return new vscode.ThemeIcon("sync~spin");
+    if (this.tunnel.status === CloudflareTunnelStatus.running) {
+      const runningIconColor = new vscode.ThemeColor("charts.orange");
+      return new vscode.ThemeIcon("cloud", runningIconColor);
     }
 
-    const runningIconColor = new vscode.ThemeColor("charts.orange");
-    return new vscode.ThemeIcon("cloud", runningIconColor);
+    return new vscode.ThemeIcon("sync~spin");
   }
 
   // @ts-expect-error: TS2611
