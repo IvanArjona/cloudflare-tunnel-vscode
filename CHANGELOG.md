@@ -2,7 +2,15 @@
 
 All notable changes to the Cloudflare Tunnels for VSCode extension will be documented in this file.
 
+## [1.0.1] - 2024-08-22
+
+### Changed
+
+- Fixed missing tar npm dependency
+
 ## [1.0.0] - 2024-08-22
+
+### Changed
 
 - Create multiple tunnels.
 - New tree view based interface.
