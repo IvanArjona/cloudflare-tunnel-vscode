@@ -4,10 +4,11 @@ import { logger } from "../logger";
 import { CloudflaredDownloader } from "./downloader";
 import { CloudflareTunnel } from "../tunnel";
 import { ExecutableClient } from "./executable";
+import * as constants from "../constants";
 
 export class CloudflaredClient extends ExecutableClient {
   constructor(uri: vscode.Uri) {
-    super(uri, "cloudflared");
+    super(uri, constants.cloudflared);
   }
 
   async version(): Promise<string> {

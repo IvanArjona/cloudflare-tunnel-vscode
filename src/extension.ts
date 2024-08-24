@@ -3,6 +3,8 @@ import { CloudflaredClient } from "./cmd/cloudflared";
 import { commands } from "./commands/index";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
 import { GlobalState } from "./state/global";
+import * as constants from "./constants";
+import { setContext } from "./utils";
 
 let cloudflared: CloudflaredClient;
 
@@ -15,19 +17,19 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Activate commands
   for (const callback of commands) {
-    const commandId = `cloudflaretunnel.${callback.name}`;
+    const commandId = `${constants.prefix}.${callback.name}`;
     const command = vscode.commands.registerCommand(commandId, callback);
     context.subscriptions.push(command);
   }
 
   // Register providers
   vscode.window.registerTreeDataProvider(
-    "cloudflaretunnel.list",
+    constants.Views.list,
     cloudflareTunnelProvider
   );
 
   // Context keys
-  vscode.commands.executeCommand("setContext", "cloudflaretunnel.isLoggedIn", globalState.isLoggedIn);
+  setContext(constants.Context.isLoggedIn, globalState.isLoggedIn);
 }
 
 // this method is called when your extension is deactivated

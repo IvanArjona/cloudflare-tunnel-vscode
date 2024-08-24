@@ -5,12 +5,13 @@ import * as tar from "tar";
 import * as path from "path";
 import { getApi, FileDownloader } from "@microsoft/vscode-file-downloader-api";
 import { globalState } from "../state/global";
+import * as constants from "../constants";
 
 export class CloudflaredDownloader {
   constructor(private context: vscode.ExtensionContext) {}
 
   private async setPermissions(uri: vscode.Uri): Promise<void> {
-    fs.chmodSync(uri.fsPath, 0o750);
+    fs.chmodSync(uri.fsPath, constants.cloudflaredPermissions);
   }
 
   private async getCloudflaredFileName(): Promise<string> {
@@ -21,9 +22,7 @@ export class CloudflaredDownloader {
   }
 
   private async getDownloadUri(fileName: string): Promise<vscode.Uri> {
-    return vscode.Uri.parse(
-      `https://github.com/cloudflare/cloudflared/releases/latest/download/${fileName}`
-    );
+    return vscode.Uri.parse(constants.cloudflaredDownloadUrl + fileName);
   }
 
   private async unzipDarwin(

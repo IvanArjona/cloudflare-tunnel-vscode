@@ -7,3 +7,8 @@ export interface Publisher {
 export interface Subscriber {
   refresh: () => void;
 }
+
+export interface ConfigItem {
+  key: string;
+  default: string | number | boolean;
+}

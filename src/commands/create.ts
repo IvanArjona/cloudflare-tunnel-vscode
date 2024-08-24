@@ -6,6 +6,7 @@ import { cloudflareTunnelStatusBar } from "../statusbar/statusbar";
 import { showErrorMessage, showInformationMessage } from "../utils";
 import { globalState } from "../state/global";
 import { config } from "../state/config";
+import * as constants from "../constants";
 
 function portValiteInput(value: string): string | undefined {
   if (!value) {
@@ -81,7 +82,7 @@ export async function createTunnel(): Promise<void> {
       await vscode.window.withProgress<void>(
         {
           location: vscode.ProgressLocation.Notification,
-          title: `Starting cloudflare tunnel for ${tunnel.url}. [(Show logs)](command:cloudflaretunnel.openOutputChannel)\n`,
+          title: `Starting cloudflare tunnel for ${tunnel.url}. [(Show logs)](command:${constants.Commands.openOutputChannel})\n`,
           cancellable: true,
         },
         async (progress, token) => {

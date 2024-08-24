@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as constants from "./constants";
 
 export function showErrorMessage(error: unknown) {
   let message = "";
@@ -36,4 +37,8 @@ export async function showInformationMessage(
   } else {
     await vscode.window.showInformationMessage(message);
   }
+}
+
+export function setContext(context: constants.Context, value: unknown) {
+  vscode.commands.executeCommand("setContext", context, value);
 }

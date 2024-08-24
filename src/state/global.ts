@@ -1,4 +1,6 @@
 import * as vscode from "vscode";
+import * as constants from "../constants";
+import { setContext } from "../utils";
 
 export class GlobalState {
   state: vscode.Memento;
@@ -29,11 +31,7 @@ export class GlobalState {
   }
 
   setIsLoggedInContext(value: boolean): void {
-    vscode.commands.executeCommand(
-      "setContext",
-      "cloudflaretunnel.isLoggedIn",
-      value
-    );
+    setContext(constants.Context.isLoggedIn, value);
   }
 
   static init(context: vscode.ExtensionContext): GlobalState {

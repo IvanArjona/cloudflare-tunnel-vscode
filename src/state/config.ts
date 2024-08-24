@@ -1,26 +1,32 @@
 import * as vscode from "vscode";
+import * as constants from "../constants";
+import { ConfigItem } from "../types";
 
 export class Config {
   config: vscode.WorkspaceConfiguration;
 
   constructor() {
-    this.config = vscode.workspace.getConfiguration("cloudflaretunnel.tunnel");
+    this.config = vscode.workspace.getConfiguration(constants.configSection);
   }
 
   get defaultPort(): number {
-    return this.config.get<number>("defaultPort", 8080);
+    return this.get<number>(constants.config.defaultPort);
   }
 
   get defaultHostname(): string {
-    return this.config.get<string>("defaultHostname", "");
+    return this.get<string>(constants.config.defaultHostname);
   }
 
   get localHostname(): string {
-    return this.config.get<string>("localHostname", "localhost");
+    return this.get<string>(constants.config.localHostname);
   }
 
   get showStatusBarItem(): boolean {
-    return this.config.get<boolean>("showStatusBarItem", true);
+    return this.get<boolean>(constants.config.showStatusBarItem);
+  }
+
+  get<T>(configItem: ConfigItem): T {
+    return this.config.get<T>(configItem.key, configItem.default as T);
   }
 }
 

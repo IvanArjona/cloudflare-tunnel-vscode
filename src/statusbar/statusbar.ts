@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { Subscriber } from "../types";
 import { cloudflareTunnelProvider } from "../providers/tunnels";
 import { config } from "../state/config";
+import * as constants from "../constants";
 
 export class CloudflareTunnelStatusBar implements Subscriber {
   statusBarItem: vscode.StatusBarItem;
@@ -11,7 +12,7 @@ export class CloudflareTunnelStatusBar implements Subscriber {
       vscode.StatusBarAlignment.Right,
       Number.MAX_SAFE_INTEGER
     );
-    this.statusBarItem.command = "cloudflaretunnel.openPanel";
+    this.statusBarItem.command = constants.Commands.openPanel;
     this.refresh();
     this.showStatusBarItem();
   }
