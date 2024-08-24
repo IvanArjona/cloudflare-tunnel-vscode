@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as vscode from "vscode";
 import { CloudflareTunnel, CloudflareTunnelStatus } from "../tunnel";
 import { cloudflared } from "../cmd/cloudflared";
@@ -64,9 +63,7 @@ async function getHostname(): Promise<string | null> {
   return null;
 }
 
-export async function createTunnel(
-  context: vscode.ExtensionContext
-): Promise<void> {
+export async function createTunnel(): Promise<void> {
   const port = await getPortInput();
   if (!port) {
     return;

@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as vscode from "vscode";
 import { CloudflareTunnel } from "../tunnel";
 
 export async function openTunnelExternal(
-  context: vscode.ExtensionContext,
   tunnel: CloudflareTunnel
 ): Promise<void> {
   const uri = vscode.Uri.parse(tunnel.tunnelUri);
@@ -12,7 +10,6 @@ export async function openTunnelExternal(
 }
 
 export async function copyTunnelUriToClipboard(
-  context: vscode.ExtensionContext,
   tunnel: CloudflareTunnel
 ): Promise<void> {
   vscode.env.clipboard.writeText(tunnel.tunnelUri);

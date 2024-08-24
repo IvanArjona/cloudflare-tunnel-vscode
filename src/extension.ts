@@ -14,9 +14,8 @@ export async function activate(context: vscode.ExtensionContext) {
   cloudflared = await CloudflaredClient.init(context);
 
   // Activate commands
-  for (let callback of commands) {
+  for (const callback of commands) {
     const commandId = `cloudflaretunnel.${callback.name}`;
-    callback = callback.bind(null, context);
     const command = vscode.commands.registerCommand(commandId, callback);
     context.subscriptions.push(command);
   }

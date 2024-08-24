@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import * as vscode from "vscode";
 import { cloudflared } from "../cmd/cloudflared";
 import { showErrorMessage, showInformationMessage } from "../utils";
 import { globalState } from "../state/global";
 
-export async function login(context: vscode.ExtensionContext): Promise<void> {
+export async function login(): Promise<void> {
   try {
     const credentialsFile = await cloudflared.login();
     globalState.credentialsFile = credentialsFile;
@@ -22,7 +20,7 @@ export async function login(context: vscode.ExtensionContext): Promise<void> {
   }
 }
 
-export async function logout(context: vscode.ExtensionContext): Promise<void> {
+export async function logout(): Promise<void> {
   globalState.isLoggedIn;
 
   if (globalState.isLoggedIn) {
