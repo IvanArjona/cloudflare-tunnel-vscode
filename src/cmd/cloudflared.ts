@@ -113,18 +113,16 @@ export class CloudflaredClient extends ExecutableClient {
       fs.unlinkSync(credentialsFile);
     }
   }
+
+  static async init(context: vscode.ExtensionContext): Promise<CloudflaredClient> {
+    // Download cloudflared
+    const cloudflaredDownloader = new CloudflaredDownloader(context);
+    const cloudflaredUri = await cloudflaredDownloader.get();
+
+    // Setup Cloudflared client
+    cloudflared = new CloudflaredClient(cloudflaredUri);
+    return cloudflared;
+  }
 }
 
 export let cloudflared: CloudflaredClient;
-
-export async function initCloudflaredClient(
-  context: vscode.ExtensionContext
-): Promise<CloudflaredClient> {
-  // Download cloudflared
-  const cloudflaredDownloader = new CloudflaredDownloader(context);
-  const cloudflaredUri = await cloudflaredDownloader.get();
-
-  // Setup Cloudflared client
-  cloudflared = new CloudflaredClient(cloudflaredUri);
-  return cloudflared;
-}
