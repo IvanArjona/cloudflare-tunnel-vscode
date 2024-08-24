@@ -2,12 +2,12 @@
 import * as vscode from "vscode";
 import { cloudflared } from "../cmd/cloudflared";
 import { showErrorMessage, showInformationMessage } from "../utils";
-import { loginStorage } from "../storage/login";
+import { globalState } from "../state/global";
 
 export async function login(context: vscode.ExtensionContext): Promise<void> {
   try {
     const credentialsFile = await cloudflared.login();
-    loginStorage.credentialsFile = credentialsFile;
+    globalState.credentialsFile = credentialsFile;
     showInformationMessage("Logged in successfully");
   } catch (error) {
     if (
@@ -16,18 +16,18 @@ export async function login(context: vscode.ExtensionContext): Promise<void> {
     ) {
       const words = error.message.split(" ");
       const credentialsFile = words.find((word) => word.endsWith(".pem"));
-      loginStorage.credentialsFile = credentialsFile;
+      globalState.credentialsFile = credentialsFile;
     }
     showErrorMessage(error);
   }
 }
 
 export async function logout(context: vscode.ExtensionContext): Promise<void> {
-  loginStorage.isLoggedIn;
+  globalState.isLoggedIn;
 
-  if (loginStorage.isLoggedIn) {
+  if (globalState.isLoggedIn) {
     try {
-      await cloudflared.logout(loginStorage.credentialsFile!);
+      await cloudflared.logout(globalState.credentialsFile!);
       showInformationMessage("Logged out successfully");
     } catch (ex) {
       showErrorMessage(ex);
@@ -36,5 +36,5 @@ export async function logout(context: vscode.ExtensionContext): Promise<void> {
     showErrorMessage("You are not logged in");
   }
 
-  loginStorage.credentialsFile = undefined;
+  globalState.credentialsFile = undefined;
 }

@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as vscode from "vscode";
 import { CloudflareTunnel, CloudflareTunnelStatus } from "../tunnel";
 import { cloudflared } from "../cmd/cloudflared";
 import { cloudflareTunnelProvider } from "../providers/tunnels";
 import { cloudflareTunnelStatusBar } from "../statusbar/statusbar";
 import { showErrorMessage, showInformationMessage } from "../utils";
+import { globalState } from "../state/global";
 
 function portValiteInput(value: string): string | undefined {
   if (!value) {
@@ -44,11 +46,8 @@ function hostnameValiteInput(value: string): string | undefined {
   }
 }
 
-async function getHostname(
-  isLoggedIn: boolean,
-  defaultHostname: string
-): Promise<string | null> {
-  if (isLoggedIn) {
+async function getHostname(defaultHostname: string): Promise<string | null> {
+  if (globalState.isLoggedIn) {
     return (
       (await vscode.window.showInputBox({
         title: "Hostname",
@@ -72,17 +71,12 @@ export async function createTunnel(
   const defaultPort = config.get<number>("defaultPort", 8080);
   const defaultHostname = config.get<string>("defaultHostname", "");
   const localHostname = config.get<string>("localHostname", "localhost");
-  const credentialsFile = context.globalState.get<string | null>(
-    "credentialsFile",
-    null
-  );
-  const isLoggedIn = credentialsFile !== undefined;
 
   const port = await getPortInput(defaultPort);
   if (!port) {
     return;
   }
-  const hostname = await getHostname(isLoggedIn, defaultHostname);
+  const hostname = await getHostname(defaultHostname);
 
   try {
     const tunnel = new CloudflareTunnel(localHostname, port, hostname);

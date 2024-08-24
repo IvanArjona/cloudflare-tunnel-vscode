@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as tar from "tar";
 import * as path from "path";
 import { getApi, FileDownloader } from "@microsoft/vscode-file-downloader-api";
+import { globalState } from "../state/global";
 
 export class CloudflaredDownloader {
   constructor(private context: vscode.ExtensionContext) {}
@@ -68,7 +69,7 @@ export class CloudflaredDownloader {
   }
 
   async get(): Promise<vscode.Uri> {
-    let uri = this.context.globalState.get<vscode.Uri>("cloudflaredUri");
+    let uri = globalState.cloudflaredUri;
     if (uri && fs.existsSync(uri.fsPath)) {
       return uri;
     }
@@ -76,7 +77,7 @@ export class CloudflaredDownloader {
     const fileName = await this.getCloudflaredFileName();
     uri = await this.download(fileName);
     await this.setPermissions(uri);
-    this.context.globalState.update("cloudflaredUri", uri);
+    globalState.cloudflaredUri = uri;
 
     return uri;
   }

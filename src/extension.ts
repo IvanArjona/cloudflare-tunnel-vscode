@@ -2,13 +2,13 @@ import * as vscode from "vscode";
 import { CloudflaredClient } from "./cmd/cloudflared";
 import { commands } from "./commands/index";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
-import { LoginStorage } from "./storage/login";
+import { GlobalState } from "./state/global";
 
 let cloudflared: CloudflaredClient;
 
 export async function activate(context: vscode.ExtensionContext) {
   // Storage
-  LoginStorage.init(context);
+  const globalState = GlobalState.init(context);
 
   // Setup Cloudflared client
   cloudflared = await CloudflaredClient.init(context);
@@ -28,12 +28,7 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   // Context keys
-  vscode.commands.executeCommand("setContext", "cloudflaretunnel.isLoggedIn", isLoggedIn(context));
-}
-
-function isLoggedIn(context: vscode.ExtensionContext): boolean {
-  const credentialsFile = context.globalState.get<string>("credentialsFile");
-  return credentialsFile !== undefined;
+  vscode.commands.executeCommand("setContext", "cloudflaretunnel.isLoggedIn", globalState.isLoggedIn);
 }
 
 // this method is called when your extension is deactivated
