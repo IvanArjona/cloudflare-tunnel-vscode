@@ -6,6 +6,7 @@ import { cloudflareTunnelProvider } from "../providers/tunnels";
 import { cloudflareTunnelStatusBar } from "../statusbar/statusbar";
 import { showErrorMessage, showInformationMessage } from "../utils";
 import { globalState } from "../state/global";
+import { config } from "../state/config";
 
 function portValiteInput(value: string): string | undefined {
   if (!value) {
@@ -23,10 +24,10 @@ function portValiteInput(value: string): string | undefined {
   }
 }
 
-async function getPortInput(defaultPort: number): Promise<number | null> {
+async function getPortInput(): Promise<number | null> {
   const response = await vscode.window.showInputBox({
     title: "Port number",
-    value: defaultPort.toString(),
+    value: config.defaultPort.toString(),
     prompt: "Select your local port number.",
     ignoreFocusOut: true,
     validateInput: portValiteInput,
@@ -46,12 +47,12 @@ function hostnameValiteInput(value: string): string | undefined {
   }
 }
 
-async function getHostname(defaultHostname: string): Promise<string | null> {
+async function getHostname(): Promise<string | null> {
   if (globalState.isLoggedIn) {
     return (
       (await vscode.window.showInputBox({
         title: "Hostname",
-        value: defaultHostname,
+        value: config.defaultHostname,
         placeHolder: "Enter a hostname",
         ignoreFocusOut: true,
         prompt:
@@ -66,20 +67,14 @@ async function getHostname(defaultHostname: string): Promise<string | null> {
 export async function createTunnel(
   context: vscode.ExtensionContext
 ): Promise<void> {
-  // Configuration
-  const config = vscode.workspace.getConfiguration("cloudflaretunnel.tunnel");
-  const defaultPort = config.get<number>("defaultPort", 8080);
-  const defaultHostname = config.get<string>("defaultHostname", "");
-  const localHostname = config.get<string>("localHostname", "localhost");
-
-  const port = await getPortInput(defaultPort);
+  const port = await getPortInput();
   if (!port) {
     return;
   }
-  const hostname = await getHostname(defaultHostname);
+  const hostname = await getHostname();
 
   try {
-    const tunnel = new CloudflareTunnel(localHostname, port, hostname);
+    const tunnel = new CloudflareTunnel(config.localHostname, port, hostname);
 
     cloudflareTunnelProvider.addTunnel(tunnel);
     tunnel.subscribe(cloudflareTunnelProvider);

@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { Subscriber } from "../types";
 import { cloudflareTunnelProvider } from "../providers/tunnels";
+import { config } from "../state/config";
 
 export class CloudflareTunnelStatusBar implements Subscriber {
   statusBarItem: vscode.StatusBarItem;
@@ -16,9 +17,7 @@ export class CloudflareTunnelStatusBar implements Subscriber {
   }
 
   private showStatusBarItem() {
-    const config = vscode.workspace.getConfiguration("cloudflaretunnel.gui");
-    const showStatusBarItem = config.get<boolean>("showStatusBarItem", true);
-    if (showStatusBarItem) {
+    if (config.showStatusBarItem) {
       this.statusBarItem.show();
     }
   }

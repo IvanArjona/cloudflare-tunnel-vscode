@@ -7,7 +7,7 @@ import { GlobalState } from "./state/global";
 let cloudflared: CloudflaredClient;
 
 export async function activate(context: vscode.ExtensionContext) {
-  // Storage
+  // State
   const globalState = GlobalState.init(context);
 
   // Setup Cloudflared client
