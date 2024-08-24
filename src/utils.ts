@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import * as constants from "./constants";
+import { CloudflareTunnel } from "./tunnel";
+import { cloudflareTunnelProvider } from "./providers/tunnels";
 
 export function showErrorMessage(error: unknown) {
   let message = "";
@@ -41,4 +43,19 @@ export async function showInformationMessage(
 
 export function setContext(context: constants.Context, value: unknown) {
   vscode.commands.executeCommand("setContext", context, value);
+}
+
+export async function selectRunningTunnel(): Promise<CloudflareTunnel | undefined> {
+  const runningTunnels = await cloudflareTunnelProvider.runningTunnels();
+  return await vscode.window.showQuickPick<CloudflareTunnel>(runningTunnels);
+}
+
+export async function selectRunningTunnelIfUndefined(tunnel?: CloudflareTunnel): Promise<CloudflareTunnel> {
+  if (tunnel === undefined) {
+    tunnel = await selectRunningTunnel();
+    if (!tunnel) {
+      return Promise.reject("No tunnel selected");
+    }
+  }
+  return tunnel;
 }
