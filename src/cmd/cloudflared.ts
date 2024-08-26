@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
+import { EventEmitter } from "events";
 import { logger } from "../logger";
 import { CloudflaredDownloader } from "./downloader";
 import { CloudflareTunnel } from "../tunnel";
@@ -94,19 +95,38 @@ export class CloudflaredClient extends ExecutableClient {
     return await this.stopProcess(tunnel.process);
   }
 
-  async login(): Promise<string> {
-    const response = await this.exec(["login"]);
-    if (response.includes("You have successfully logged in")) {
-      const lines = response.split("\n");
-      const credentialsFile = lines.find((line) => line.endsWith(".pem"));
-      if (!credentialsFile) {
-        throw new Error("Credentials file not found");
-      }
-      return credentialsFile;
-    } else if (response.startsWith("You have an existing certificate")) {
-      throw new Error(response);
+  async login(emitter: EventEmitter): Promise<void> {
+    const process = await this.spawn(["login"]);
+    if (process.stdout && process.stderr) {
+      process.stdout.on("data", (data: Buffer) => {
+        const strData = data.toString();
+        const lines = strData.split("\n");
+        for (const line of lines) {
+          logger.error(line);
+          if (line.startsWith("You have an existing certificate")) {
+            emitter.emit("error", new Error(line));
+            emitter.emit("ended");
+          }
+        }
+      });
+
+      process.stderr.on("data", (data: Buffer) => {
+        const strData = data.toString();
+        const lines = strData.split("\n");
+        for (const line of lines) {
+          logger.info(line);
+          if (line.includes(".cloudflare.com")) {
+            const loginUrl = new URL(line);
+            emitter.emit("loginUrl", loginUrl);
+          }
+          if (line.endsWith(".pem")) {
+            const credentialsFile = line;
+            emitter.emit("credentialsFile", credentialsFile);
+            emitter.emit("ended");
+          }
+        }
+      });
     }
-    throw new Error("Login failed");
   }
 
   async logout(credentialsFile: string): Promise<void> {
@@ -115,7 +135,9 @@ export class CloudflaredClient extends ExecutableClient {
     }
   }
 
-  static async init(context: vscode.ExtensionContext): Promise<CloudflaredClient> {
+  static async init(
+    context: vscode.ExtensionContext
+  ): Promise<CloudflaredClient> {
     // Download cloudflared
     const cloudflaredDownloader = new CloudflaredDownloader(context);
     const cloudflaredUri = await cloudflaredDownloader.get();

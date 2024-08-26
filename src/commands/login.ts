@@ -1,23 +1,53 @@
+import * as vscode from "vscode";
+import { EventEmitter, once } from "events";
 import { cloudflared } from "../cmd/cloudflared";
 import { showErrorMessage, showInformationMessage } from "../utils";
 import { globalState } from "../state/global";
 
-export async function login(): Promise<void> {
-  try {
-    const credentialsFile = await cloudflared.login();
+async function doLogin(
+  progress: vscode.Progress<{ message?: string }>
+): Promise<void> {
+  const loginEmitter = new EventEmitter();
+
+  loginEmitter.on("loginUrl", (loginUrl: URL) => {
+    progress.report({
+      message: `A browser window should have opened in your browser. [Open again](${loginUrl}).`,
+    });
+  });
+
+  loginEmitter.on("credentialsFile", (credentialsFile: string) => {
     globalState.credentialsFile = credentialsFile;
-    showInformationMessage("Logged in successfully");
-  } catch (error) {
+    const message = `Logged in successfully. Credentials file: ${credentialsFile}`;
+    progress.report({ message });
+    showInformationMessage(message);
+  });
+
+  loginEmitter.on("error", (error: Error) => {
     if (
       error instanceof Error &&
       error.message.startsWith("You have an existing certificate at")
     ) {
       const words = error.message.split(" ");
       const credentialsFile = words.find((word) => word.endsWith(".pem"));
-      globalState.credentialsFile = credentialsFile;
+      loginEmitter.emit("credentialsFile", credentialsFile);
+    } else {
+      showErrorMessage(error);
     }
-    showErrorMessage(error);
-  }
+  });
+
+  await cloudflared.login(loginEmitter);
+  await once(loginEmitter, "ended");
+}
+
+export async function login(): Promise<void> {
+  await vscode.window.withProgress<void>(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: "Logging in...",
+      cancellable: true,
+    },
+    doLogin
+  );
 }
 
 export async function logout(): Promise<void> {

@@ -2,13 +2,19 @@
 
 All notable changes to the Cloudflare Tunnels for VSCode extension will be documented in this file.
 
-## [1.0.1] - 2024-08-22
+## [1.0.2] - 2024-08-26
+
+### Changed
+
+- Improved login to cloudflare.
+
+## [1.0.1] - 2024-08-24
 
 ### Changed
 
 - Fixed missing tar npm dependency
 
-## [1.0.0] - 2024-08-22
+## [1.0.0] - 2024-08-24
 
 ### Changed
 
