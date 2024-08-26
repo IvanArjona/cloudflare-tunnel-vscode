@@ -2,7 +2,7 @@
   "name": "cloudflaretunnel",
   "displayName": "Cloudflare Tunnel",
   "description": "A VSCode extension to create a local tunnel through Cloudflare",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "engines": {
     "vscode": "^1.91.0"
   },
