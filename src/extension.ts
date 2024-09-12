@@ -9,6 +9,10 @@ import { setContext } from "./utils";
 let cloudflared: CloudflaredClient;
 
 export async function activate(context: vscode.ExtensionContext) {
+  // Set context as a global as some tests depend on it
+  // @ts-expect-error: TS7017
+  global.testExtensionContext = context;
+
   // State
   const globalState = GlobalState.init(context);
 
