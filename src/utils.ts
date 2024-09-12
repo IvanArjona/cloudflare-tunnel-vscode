@@ -35,6 +35,8 @@ export async function showInformationMessage(
       case "Open in browser":
         vscode.env.openExternal(vscode.Uri.parse(url));
         break;
+      default:
+        break;
     }
   } else {
     await vscode.window.showInformationMessage(message);
@@ -45,16 +47,20 @@ export function setContext(context: constants.Context, value: unknown) {
   vscode.commands.executeCommand("setContext", context, value);
 }
 
-export async function selectRunningTunnel(): Promise<CloudflareTunnel | undefined> {
+export async function selectRunningTunnel(): Promise<
+  CloudflareTunnel | undefined
+> {
   const runningTunnels = await cloudflareTunnelProvider.runningTunnels();
-  return await vscode.window.showQuickPick<CloudflareTunnel>(runningTunnels);
+  return vscode.window.showQuickPick<CloudflareTunnel>(runningTunnels);
 }
 
-export async function selectRunningTunnelIfUndefined(tunnel?: CloudflareTunnel): Promise<CloudflareTunnel> {
+export async function selectRunningTunnelIfUndefined(
+  tunnel?: CloudflareTunnel
+): Promise<CloudflareTunnel> {
   if (tunnel === undefined) {
     tunnel = await selectRunningTunnel();
     if (!tunnel) {
-      return Promise.reject("No tunnel selected");
+      return Promise.reject(Error("No tunnel selected"));
     }
   }
   return tunnel;

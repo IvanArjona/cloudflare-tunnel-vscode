@@ -3,10 +3,10 @@ import * as vscode from "vscode";
 import * as sinon from "sinon";
 import * as constants from "../../constants";
 import proxyquire from "proxyquire";
-import { CloudflaredDownloader as CloudflareDownloaderType } from "../../cmd/downloader";
+import CloudflareDownloader from "../../cmd/downloader";
 
 suite("CloudflaredDownloader Test Suite", () => {
-  let downloader: CloudflareDownloaderType;
+  let downloader: CloudflareDownloader;
   let downloadFromUriStub: sinon.SinonStub;
 
   suiteSetup(async () => {
@@ -18,7 +18,7 @@ suite("CloudflaredDownloader Test Suite", () => {
     const context = global.testExtensionContext;
 
     // Mocks
-    const { CloudflaredDownloader: cloudflaredDownloader } = proxyquire(
+    const { default: CloudflaredDownloaderProxy } = proxyquire(
       "../../cmd/downloader",
       {
         tar: {
@@ -32,7 +32,7 @@ suite("CloudflaredDownloader Test Suite", () => {
       }
     );
 
-    downloader = new cloudflaredDownloader(context);
+    downloader = new CloudflaredDownloaderProxy(context);
 
     // Stubs
     downloadFromUriStub = sinon

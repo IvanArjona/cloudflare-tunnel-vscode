@@ -20,6 +20,10 @@ jobs:
         if: runner.os == 'Linux'
       - run: npm ci
         if: runner.os != 'Linux'
+      - run: xvfb-run -a npm lint
+        if: runner.os == 'Linux'
+      - run: npm lint
+        if: runner.os != 'Linux'
       - run: xvfb-run -a npm test
         if: runner.os == 'Linux'
       - run: npm test

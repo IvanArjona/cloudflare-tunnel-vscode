@@ -27,7 +27,7 @@ async function doStopTunnel(
   showInformationMessage("Cloudflare tunnel stopped");
 }
 
-export async function stopTunnel(tunnel?: CloudflareTunnel): Promise<void> {
+async function stopTunnel(tunnel?: CloudflareTunnel): Promise<void> {
   tunnel = await selectRunningTunnelIfUndefined(tunnel);
   tunnel.status = CloudflareTunnelStatus.stopping;
 
@@ -39,3 +39,5 @@ export async function stopTunnel(tunnel?: CloudflareTunnel): Promise<void> {
     async (progress, token) => doStopTunnel(progress, token, tunnel)
   );
 }
+
+export default stopTunnel;

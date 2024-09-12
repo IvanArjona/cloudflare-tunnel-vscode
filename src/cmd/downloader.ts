@@ -7,8 +7,10 @@ import { getApi, FileDownloader } from "@microsoft/vscode-file-downloader-api";
 import { globalState } from "../state/global";
 import * as constants from "../constants";
 
-export class CloudflaredDownloader {
-  constructor(private context: vscode.ExtensionContext) {}
+export default class CloudflaredDownloader {
+  constructor(private context: vscode.ExtensionContext) {
+    this.context = context;
+  }
 
   private async setPermissions(uri: vscode.Uri): Promise<void> {
     fs.chmodSync(uri.fsPath, constants.cloudflaredPermissions);
@@ -50,7 +52,7 @@ export class CloudflaredDownloader {
     fileName: string
   ): Promise<vscode.Uri> {
     const fileDownloader: FileDownloader = await getApi();
-    return await vscode.window.withProgress<vscode.Uri>(
+    return vscode.window.withProgress<vscode.Uri>(
       {
         location: vscode.ProgressLocation.Window,
         title: "Downloading cloudfared client",
@@ -61,13 +63,13 @@ export class CloudflaredDownloader {
 
   async download(fileName: string): Promise<vscode.Uri> {
     const isDarwin = fileName.includes("darwin");
-    const downloadFileName = isDarwin ? fileName + ".tgz" : fileName;
+    const downloadFileName = isDarwin ? `${fileName}.tgz` : fileName;
     const downloadUri = await this.getDownloadUri(downloadFileName);
 
     const uri = await this.downloadFromUri(downloadUri, downloadFileName);
 
     if (isDarwin) {
-      return await this.unzipDarwin(fileName, uri);
+      return this.unzipDarwin(fileName, uri);
     }
 
     return uri;

@@ -10,14 +10,18 @@ export enum CloudflareTunnelStatus {
 export class CloudflareTunnel implements Publisher {
   tunnelUri: string = "";
   process?: ChildProcess;
-  private _status: CloudflareTunnelStatus = CloudflareTunnelStatus.starting;
+  #status: CloudflareTunnelStatus = CloudflareTunnelStatus.starting;
   private subscribers: Subscriber[] = [];
 
   constructor(
     public localHostname: string,
     public port: number,
     public hostname: string | null
-  ) {}
+  ) {
+    this.localHostname = localHostname;
+    this.port = port;
+    this.hostname = hostname;
+  }
 
   get url(): string {
     return `${this.localHostname}:${this.port}`;
@@ -37,7 +41,12 @@ export class CloudflareTunnel implements Publisher {
   }
 
   get status(): CloudflareTunnelStatus {
-    return this._status;
+    return this.#status;
+  }
+
+  set status(value: CloudflareTunnelStatus) {
+    this.#status = value;
+    this.notifySubscribers();
   }
 
   get tunnelName(): string {
@@ -55,19 +64,12 @@ export class CloudflareTunnel implements Publisher {
     return this.tunnelUri.slice(8);
   }
 
-  set status(value: CloudflareTunnelStatus) {
-    this._status = value;
-    this.notifySubscribers();
-  }
-
   subscribe(subscriber: Subscriber): void {
     this.subscribers.push(subscriber);
     this.notifySubscribers();
   }
 
   notifySubscribers(): void {
-    for (const subscriber of this.subscribers) {
-      subscriber.refresh();
-    }
+    this.subscribers.forEach(subscriber => subscriber.refresh());
   }
 }

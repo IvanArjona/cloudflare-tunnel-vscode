@@ -51,8 +51,6 @@ export async function login(): Promise<void> {
 }
 
 export async function logout(): Promise<void> {
-  globalState.isLoggedIn;
-
   if (globalState.isLoggedIn) {
     try {
       await cloudflared.logout(globalState.credentialsFile!);

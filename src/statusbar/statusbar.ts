@@ -24,19 +24,17 @@ export class CloudflareTunnelStatusBar implements Subscriber {
   }
 
   refresh() {
-    const tunnels = cloudflareTunnelProvider.tunnels;
+    const { tunnels } = cloudflareTunnelProvider;
     const numTunnels = cloudflareTunnelProvider.runningTunnels().length;
-    const text =
-      "Cloudflare Tunnel" + (numTunnels >= 1 ? ` ${numTunnels}` : "");
+    const text = `Cloudflare Tunnel${numTunnels >= 1 ? ` ${numTunnels}` : ""}`;
     const tooltipText = tunnels
-      .map((tunnel) => {
-        return (
+      .map(
+        (tunnel) =>
           tunnel.url +
           (tunnel.status === "Running"
             ? `\t $(cloud) [${tunnel.shortTunnelUri}](${tunnel.tunnelUri})`
             : "")
-        );
-      })
+      )
       .join("\n\n---\n\n");
     const tooltip = new vscode.MarkdownString(tooltipText, true);
 

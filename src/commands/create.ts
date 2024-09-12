@@ -8,11 +8,11 @@ import { globalState } from "../state/global";
 import { config } from "../state/config";
 import * as constants from "../constants";
 
-function portValiteInput(value: string): string | undefined {
+function portValidateInput(value: string): string | undefined {
   if (!value) {
-    return;
+    return undefined;
   }
-  const port = parseInt(value);
+  const port = parseInt(value, 10);
   if (!port) {
     return "Please enter a valid port number.";
   }
@@ -22,6 +22,8 @@ function portValiteInput(value: string): string | undefined {
   if (cloudflareTunnelProvider.hasPort(port)) {
     return "Port number is already in use.";
   }
+
+  return undefined;
 }
 
 async function getPortInput(): Promise<number | null> {
@@ -30,14 +32,14 @@ async function getPortInput(): Promise<number | null> {
     value: config.defaultPort.toString(),
     prompt: "Select your local port number.",
     ignoreFocusOut: true,
-    validateInput: portValiteInput,
+    validateInput: portValidateInput,
   });
-  return response ? parseInt(response) : null;
+  return response ? parseInt(response, 10) : null;
 }
 
-function hostnameValiteInput(value: string): string | undefined {
+function hostnameValidateInput(value: string): string | undefined {
   if (!value) {
-    return;
+    return undefined;
   }
   if (!/^[a-zA-Z0-9.-]+$/.test(value)) {
     return "Invalid hostname. Only alphanumeric characters, dots, and dashes are allowed.";
@@ -45,6 +47,8 @@ function hostnameValiteInput(value: string): string | undefined {
   if (cloudflareTunnelProvider.hasHostname(value)) {
     return "Hostname is already in use.";
   }
+
+  return undefined;
 }
 
 async function getHostname(): Promise<string | null> {
@@ -57,14 +61,14 @@ async function getHostname(): Promise<string | null> {
         ignoreFocusOut: true,
         prompt:
           "Your domain hostname. If not specified anything, it will generate a `.trycloudflare.com` subdomain. Make sure to login and give proper permissions before changing this setting. Example: `mytunnel.mydomain.com`",
-        validateInput: hostnameValiteInput,
+        validateInput: hostnameValidateInput,
       })) || null
     );
   }
   return null;
 }
 
-export async function createTunnel(): Promise<void> {
+async function createTunnel(): Promise<void> {
   const port = await getPortInput();
   if (!port) {
     return;
@@ -116,3 +120,5 @@ export async function createTunnel(): Promise<void> {
     showErrorMessage(ex);
   }
 }
+
+export default createTunnel;

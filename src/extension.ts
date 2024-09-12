@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { CloudflaredClient } from "./cmd/cloudflared";
-import { commands } from "./commands/index";
+import commands from "./commands/index";
 import { cloudflareTunnelProvider } from "./providers/tunnels";
 import { GlobalState } from "./state/global";
 import * as constants from "./constants";
@@ -20,11 +20,11 @@ export async function activate(context: vscode.ExtensionContext) {
   cloudflared = await CloudflaredClient.init(context);
 
   // Activate commands
-  for (const callback of commands) {
+  commands.forEach(callback => {
     const commandId = `${constants.prefix}.${callback.name}`;
     const command = vscode.commands.registerCommand(commandId, callback);
     context.subscriptions.push(command);
-  }
+  });
 
   // Register providers
   vscode.window.registerTreeDataProvider(
@@ -38,13 +38,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export async function deactivate() {
-  const tunnels = cloudflareTunnelProvider.tunnels;
-  for (const tunnel of tunnels) {
+  const { tunnels } = cloudflareTunnelProvider;
+  tunnels.forEach(async (tunnel) => {
     if (tunnel.process) {
       await cloudflared.stop(tunnel);
     }
     if (!tunnel.isQuickTunnel) {
       await cloudflared.deleteTunnel(tunnel);
     }
-  }
+  });
 }
