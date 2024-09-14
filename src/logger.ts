@@ -25,6 +25,7 @@ class OutputChannelLogger {
     this.outputChannel.appendLine(line);
 
     if (level === "error") {
+      // eslint-disable-next-line no-console
       console.error(message);
     }
   }
@@ -50,4 +51,6 @@ class OutputChannelLogger {
   }
 }
 
-export const logger = new OutputChannelLogger();
+const logger = new OutputChannelLogger();
+
+export default logger;

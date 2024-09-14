@@ -2,6 +2,9 @@ import * as vscode from "vscode";
 import * as constants from "../constants";
 import { setContext } from "../utils";
 
+// eslint-disable-next-line no-use-before-define
+export let globalState: GlobalState;
+
 export class GlobalState {
   state: vscode.Memento;
 
@@ -39,5 +42,3 @@ export class GlobalState {
     return globalState;
   }
 }
-
-export let globalState: GlobalState;

@@ -1,11 +1,14 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import { EventEmitter } from "events";
-import { logger } from "../logger";
-import { CloudflaredDownloader } from "./downloader";
+import logger from "../logger";
+import CloudflaredDownloader from "./downloader";
 import { CloudflareTunnel } from "../tunnel";
-import { ExecutableClient } from "./executable";
+import ExecutableClient from "./executable";
 import * as constants from "../constants";
+
+// eslint-disable-next-line no-use-before-define
+export let cloudflared: CloudflaredClient;
 
 export class CloudflaredClient extends ExecutableClient {
   constructor(uri: vscode.Uri) {
@@ -13,11 +16,11 @@ export class CloudflaredClient extends ExecutableClient {
   }
 
   async version(): Promise<string> {
-    return await this.exec(["--version"]);
+    return this.exec(["--version"]);
   }
 
   async createTunnel(tunnel: CloudflareTunnel): Promise<void> {
-    const tunnelName = tunnel.tunnelName;
+    const { tunnelName } = tunnel;
     const tunnels = await this.exec(["tunnel", "list"]);
     if (!tunnels.includes(tunnelName)) {
       logger.info(`Creating tunnel ${tunnelName}`);
@@ -66,16 +69,16 @@ export class CloudflaredClient extends ExecutableClient {
         process.stderr.on("data", (data) => {
           const strData = data.toString();
           const lines = strData.split("\n");
-          for (const line of lines) {
+          lines.forEach((line: string) => {
             logger.info(line);
             const [, logLevel, ...extra] = line.split(" ");
             const info = extra
               .filter((word: string) => word && word !== " ")
               .join(" ");
             if (info.includes(".trycloudflare.com")) {
-              const tunnelUri = info
+              const tunnelUri: string = info
                 .split(" ")
-                .find((word: string) => word.endsWith(".trycloudflare.com"));
+                .find((word: string) => word.endsWith(".trycloudflare.com"))!;
               resolve(tunnelUri);
             }
             if (tunnel.hostname && info.includes("connIndex=")) {
@@ -85,14 +88,14 @@ export class CloudflaredClient extends ExecutableClient {
               this.stop(tunnel);
               reject(info);
             }
-          }
+          });
         });
       }
     });
   }
 
   async stop(tunnel: CloudflareTunnel): Promise<boolean> {
-    return await this.stopProcess(tunnel.process);
+    return this.stopProcess(tunnel.process);
   }
 
   async login(emitter: EventEmitter): Promise<void> {
@@ -101,19 +104,19 @@ export class CloudflaredClient extends ExecutableClient {
       process.stdout.on("data", (data: Buffer) => {
         const strData = data.toString();
         const lines = strData.split("\n");
-        for (const line of lines) {
+        lines.forEach((line: string) => {
           logger.error(line);
           if (line.startsWith("You have an existing certificate")) {
             emitter.emit("error", new Error(line));
             emitter.emit("ended");
           }
-        }
+        });
       });
 
       process.stderr.on("data", (data: Buffer) => {
         const strData = data.toString();
         const lines = strData.split("\n");
-        for (const line of lines) {
+        lines.forEach((line: string) => {
           logger.info(line);
           if (line.includes(".cloudflare.com")) {
             const loginUrl = new URL(line);
@@ -124,7 +127,7 @@ export class CloudflaredClient extends ExecutableClient {
             emitter.emit("credentialsFile", credentialsFile);
             emitter.emit("ended");
           }
-        }
+        });
       });
     }
   }
@@ -147,5 +150,3 @@ export class CloudflaredClient extends ExecutableClient {
     return cloudflared;
   }
 }
-
-export let cloudflared: CloudflaredClient;

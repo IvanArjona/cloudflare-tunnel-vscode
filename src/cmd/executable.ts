@@ -1,9 +1,12 @@
 import * as vscode from "vscode";
-import { logger } from "../logger";
 import { ChildProcess, execFileSync, spawn } from "child_process";
+import logger from "../logger";
 
-export abstract class ExecutableClient {
-  constructor(private uri: vscode.Uri, private fileName: string) {}
+export default abstract class ExecutableClient {
+  constructor(private uri: vscode.Uri, private fileName: string) {
+    this.uri = uri;
+    this.fileName = fileName;
+  }
 
   private async getPath(): Promise<string> {
     return this.uri.fsPath;

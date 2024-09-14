@@ -7,8 +7,10 @@ import { getApi, FileDownloader } from "@microsoft/vscode-file-downloader-api";
 import { globalState } from "../state/global";
 import * as constants from "../constants";
 
-export class CloudflaredDownloader {
-  constructor(private context: vscode.ExtensionContext) {}
+export default class CloudflaredDownloader {
+  constructor(private context: vscode.ExtensionContext) {
+    this.context = context;
+  }
 
   private async setPermissions(uri: vscode.Uri): Promise<void> {
     fs.chmodSync(uri.fsPath, constants.cloudflaredPermissions);
@@ -30,41 +32,47 @@ export class CloudflaredDownloader {
     uri: vscode.Uri
   ): Promise<vscode.Uri> {
     const cwd = path.dirname(uri.fsPath);
+    const extractedFilePath = path.join(cwd, "cloudflared");
+    const renamedFilePath = path.join(cwd, fileName);
+
     await tar.x({
       file: uri.fsPath,
-      cwd: path.dirname(uri.fsPath),
+      cwd,
       filter: (path) => path === "cloudflared",
     });
 
     // Renamed extracted "cloudflared" to fileName
-    const extractedFilePath = path.join(cwd, "cloudflared");
-    const renamedFilePath = path.join(cwd, fileName);
     await fs.promises.rename(extractedFilePath, renamedFilePath);
 
-    return vscode.Uri.parse(renamedFilePath);
+    return vscode.Uri.file(renamedFilePath);
   }
 
-  private async download(fileName: string): Promise<vscode.Uri> {
-    const downloadFileName = fileName.includes("darwin")
-      ? fileName + ".tgz"
-      : fileName;
-    const downloadUri = await this.getDownloadUri(downloadFileName);
+  async downloadFromUri(
+    uri: vscode.Uri,
+    fileName: string
+  ): Promise<vscode.Uri> {
     const fileDownloader: FileDownloader = await getApi();
-
-    const uri = await vscode.window.withProgress<vscode.Uri>(
+    return vscode.window.withProgress<vscode.Uri>(
       {
         location: vscode.ProgressLocation.Window,
         title: "Downloading cloudfared client",
       },
-      () =>
-        fileDownloader.downloadFile(downloadUri, downloadFileName, this.context)
+      () => fileDownloader.downloadFile(uri, fileName, this.context)
     );
+  }
 
-    if (downloadFileName === fileName) {
-      return uri;
+  async download(fileName: string): Promise<vscode.Uri> {
+    const isDarwin = fileName.includes("darwin");
+    const downloadFileName = isDarwin ? `${fileName}.tgz` : fileName;
+    const downloadUri = await this.getDownloadUri(downloadFileName);
+
+    const uri = await this.downloadFromUri(downloadUri, downloadFileName);
+
+    if (isDarwin) {
+      return this.unzipDarwin(fileName, uri);
     }
 
-    return await this.unzipDarwin(fileName, uri);
+    return uri;
   }
 
   async get(): Promise<vscode.Uri> {

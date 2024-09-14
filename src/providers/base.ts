@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-export abstract class BaseProvider<T> implements vscode.TreeDataProvider<T> {
+export default abstract class BaseProvider<T> implements vscode.TreeDataProvider<T> {
   private changeEvent = new vscode.EventEmitter<void>();
 
   public get onDidChangeTreeData(): vscode.Event<void> {

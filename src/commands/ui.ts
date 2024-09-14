@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { logger } from "../logger";
+import logger from "../logger";
 import * as constants from "../constants";
 
 export async function openPanel() {

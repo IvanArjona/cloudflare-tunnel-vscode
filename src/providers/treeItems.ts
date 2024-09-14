@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { CloudflareTunnel, CloudflareTunnelStatus } from "../tunnel";
 
-export class CloudflareTunnelTreeItem extends vscode.TreeItem {
+export default class CloudflareTunnelTreeItem extends vscode.TreeItem {
   constructor(public tunnel: CloudflareTunnel) {
     super(tunnel.label, vscode.TreeItemCollapsibleState.None);
   }

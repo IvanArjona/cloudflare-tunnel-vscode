@@ -3,10 +3,12 @@
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 2018,
-        "sourceType": "module"
+        "sourceType": "module",
+        "project": "./tsconfig.json"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "prettier"
     ],
     "rules": {
         "@typescript-eslint/naming-convention": "warn",
@@ -14,16 +16,42 @@
         "curly": "warn",
         "eqeqeq": "warn",
         "no-throw-literal": "warn",
-        "semi": "off"
+        "semi": "off",
+        "import/extensions": "off", // Disable the import/extensions rule
+        "no-param-reassign": "off",
+        "import/no-mutable-exports": "off",
+        "class-methods-use-this": "off",
+        "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
+        "no-shadow": "off"
     },
     "ignorePatterns": [
         "out",
         "dist",
+        "test",
         "**/*.d.ts"
     ],
     "extends": [
-        "eslint:recommended",
+        // "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
+        "airbnb-base",
         "prettier"
-    ]
+    ],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [
+                    ".js",
+                    ".jsx",
+                    ".ts",
+                    ".tsx"
+                ]
+            },
+            "typescript": {
+                "alwaysTryTypes": true
+            }
+        }
+    },
+    "globals": {
+        "Thenable": true
+    }
 }

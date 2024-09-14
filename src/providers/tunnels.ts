@@ -1,13 +1,13 @@
+import CloudflareTunnelTreeItem from "./treeItems";
+import BaseProvider from "./base";
 import { CloudflareTunnel, CloudflareTunnelStatus } from "../tunnel";
-import { CloudflareTunnelTreeItem } from "./treeItems";
-import { BaseProvider } from "./base";
 import { Subscriber } from "../types";
 
 export class CloudflareTunnelProvider
   extends BaseProvider<CloudflareTunnel>
   implements Subscriber
 {
-  private _tunnels: CloudflareTunnel[] = [];
+  #tunnels: CloudflareTunnel[] = [];
 
   getTreeItem(tunnel: CloudflareTunnel): CloudflareTunnelTreeItem {
     return new CloudflareTunnelTreeItem(tunnel);
@@ -17,36 +17,36 @@ export class CloudflareTunnelProvider
     if (tunnel) {
       return [];
     }
-    return this._tunnels;
+    return this.#tunnels;
   }
 
   addTunnel(tunnel: CloudflareTunnel): void {
-    this._tunnels.push(tunnel);
+    this.#tunnels.push(tunnel);
     this.refresh();
   }
 
   removeTunnel(tunnel: CloudflareTunnel): void {
-    const index = this._tunnels.indexOf(tunnel);
-    this._tunnels.splice(index, 1);
+    const index = this.#tunnels.indexOf(tunnel);
+    this.#tunnels.splice(index, 1);
     this.refresh();
   }
 
   get tunnels(): CloudflareTunnel[] {
-    return this._tunnels;
+    return this.#tunnels;
   }
 
   runningTunnels(): CloudflareTunnel[] {
-    return this._tunnels.filter(
+    return this.#tunnels.filter(
       (tunnel) => tunnel.status === CloudflareTunnelStatus.running
     );
   }
 
   hasPort(port: number): boolean {
-    return this._tunnels.some((tunnel) => tunnel.port === port);
+    return this.#tunnels.some((tunnel) => tunnel.port === port);
   }
 
   hasHostname(hostname: string): boolean {
-    return this._tunnels.some((tunnel) => tunnel.hostname === hostname);
+    return this.#tunnels.some((tunnel) => tunnel.hostname === hostname);
   }
 }
 
