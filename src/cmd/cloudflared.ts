@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import { EventEmitter } from "events";
+import { ChildProcess } from "child_process";
 import logger from "../logger";
 import CloudflaredDownloader from "./downloader";
 import { CloudflareTunnel } from "../tunnel";
@@ -51,7 +52,8 @@ export class CloudflaredClient extends ExecutableClient {
   async startTunnel(tunnel: CloudflareTunnel): Promise<void> {
     const command = this.buildStartTunnelCommand(tunnel);
     tunnel.process = await this.spawn(command);
-    tunnel.tunnelUri = await this.handleStartTunnelProcess(tunnel);
+    this.subscribeForLogs(tunnel.process);
+    tunnel.tunnelUri = await this.parseTunnelURI(tunnel);
   }
 
   private buildStartTunnelCommand(tunnel: CloudflareTunnel): string[] {
@@ -62,15 +64,39 @@ export class CloudflaredClient extends ExecutableClient {
     return command;
   }
 
-  private handleStartTunnelProcess(tunnel: CloudflareTunnel): Promise<string> {
+  private subscribeForLogs(process: ChildProcess | undefined) {
+    const logOutput = (data: Buffer) => {
+      const strData = data.toString();
+      const lines = strData.split("\n");
+      lines.forEach((line: string) => {
+        logger.info(line);
+      });
+    };
+    process?.stdout?.on("data", logOutput);
+    process?.stderr?.on("data", logOutput);
+  }
+
+  private parseTunnelURI(tunnel: CloudflareTunnel): Promise<string> {
     const process = tunnel.process!;
     return new Promise((resolve, reject) => {
       if (process.stdout && process.stderr) {
-        process.stderr.on("data", (data) => {
+        let isCancelled = false;
+        let onData: (data: Buffer) => void;
+        const cancel = () => {
+          if (!isCancelled) {
+            process.stderr?.removeListener('data', onData);
+          }
+          isCancelled = true;
+        };
+
+        onData = (data: Buffer) => {
+          if (isCancelled) {
+            process.stderr?.removeListener('data', onData);
+            return;
+          }
           const strData = data.toString();
           const lines = strData.split("\n");
           lines.forEach((line: string) => {
-            logger.info(line);
             const [, logLevel, ...extra] = line.split(" ");
             const info = extra
               .filter((word: string) => word && word !== " ")
@@ -79,17 +105,22 @@ export class CloudflaredClient extends ExecutableClient {
               const tunnelUri: string = info
                 .split(" ")
                 .find((word: string) => word.endsWith(".trycloudflare.com"))!;
+              cancel();
               resolve(tunnelUri);
             }
             if (tunnel.hostname && info.includes("connIndex=")) {
+              cancel();
               resolve(`https://${tunnel.hostname}`);
             }
             if (logLevel === "ERR") {
               this.stop(tunnel);
+              cancel();
               reject(info);
             }
           });
-        });
+        };
+
+        process.stderr.on("data", onData);
       }
     });
   }
