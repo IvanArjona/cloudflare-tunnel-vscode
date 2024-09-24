@@ -27,6 +27,9 @@ export class CloudflareTunnelProvider
 
   removeTunnel(tunnel: CloudflareTunnel): void {
     const index = this.#tunnels.indexOf(tunnel);
+    if (index === -1) {
+      return;
+    }
     this.#tunnels.splice(index, 1);
     this.refresh();
   }

@@ -103,6 +103,9 @@ async function createTunnel(): Promise<void> {
           }
           progress.report({ message: "Starting tunnel..." });
           await cloudflared.startTunnel(tunnel);
+          tunnel.process?.on("exit", () => {
+            cloudflareTunnelProvider.removeTunnel(tunnel);
+          });
         }
       );
 
