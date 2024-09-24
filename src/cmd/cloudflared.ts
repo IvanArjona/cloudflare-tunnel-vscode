@@ -64,7 +64,7 @@ export class CloudflaredClient extends ExecutableClient {
     return command;
   }
 
-  private subscribeForLogs(process: ChildProcess | undefined) {
+  private subscribeForLogs(process: ChildProcess | undefined): void {
     const logOutput = (data: Buffer) => {
       const strData = data.toString();
       const lines = strData.split("\n");
