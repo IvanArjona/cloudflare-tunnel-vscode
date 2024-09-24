@@ -2,6 +2,11 @@
 
 All notable changes to the Cloudflare Tunnels for VSCode extension will be documented in this file.
 
+## [1.0.3] - 2024-09-24
+
+- MacOS support: prevent killing cloudflared on non-fatal errors.
+- Removed original compressed cloudflared client file for MacOS.
+
 ## [1.0.2] - 2024-08-26
 
 ### Changed

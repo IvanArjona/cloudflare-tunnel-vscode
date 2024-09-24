@@ -27,6 +27,7 @@ suite("CloudflaredDownloader Test Suite", () => {
         fs: {
           promises: {
             rename: sinon.stub().resolves(),
+            unlink: sinon.stub().resolves(),
           },
         },
       }

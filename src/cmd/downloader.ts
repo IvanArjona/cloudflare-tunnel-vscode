@@ -43,6 +43,7 @@ export default class CloudflaredDownloader {
 
     // Renamed extracted "cloudflared" to fileName
     await fs.promises.rename(extractedFilePath, renamedFilePath);
+    await fs.promises.unlink(uri.fsPath);
 
     return vscode.Uri.file(renamedFilePath);
   }
