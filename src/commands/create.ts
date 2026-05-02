@@ -6,7 +6,10 @@ import { cloudflareTunnelStatusBar } from "../statusbar/statusbar";
 import { showErrorMessage, showInformationMessage } from "../utils";
 import { globalState } from "../state/global";
 import { config } from "../state/config";
+import { TunnelPreset } from "../types";
 import * as constants from "../constants";
+
+const TRYCLOUDFLARE_LABEL = "trycloudflare.com (random subdomain)";
 
 function portValidateInput(value: string): string | undefined {
   if (!value) {
@@ -68,12 +71,141 @@ async function getHostname(): Promise<string | null> {
   return null;
 }
 
+interface PresetQuickPickItem extends vscode.QuickPickItem {
+  preset?: TunnelPreset;
+  isNew?: boolean;
+}
+
+function presetLabel(preset: TunnelPreset): string {
+  const target = preset.hostname ?? TRYCLOUDFLARE_LABEL;
+  return `${preset.port} → ${target}`;
+}
+
+async function pickPreset(): Promise<TunnelPreset | "new" | null> {
+  const presets = globalState.tunnelPresets;
+  if (presets.length === 0) {
+    return "new";
+  }
+
+  const deleteButton: vscode.QuickInputButton = {
+    iconPath: new vscode.ThemeIcon("trash"),
+    tooltip: "Delete preset",
+  };
+
+  const buildItems = (current: TunnelPreset[]): PresetQuickPickItem[] => [
+    {
+      label: "$(add) New tunnel...",
+      description: "Configure a new port and hostname",
+      isNew: true,
+    },
+    ...current.map<PresetQuickPickItem>((preset) => ({
+      label: `$(star) ${presetLabel(preset)}`,
+      description: cloudflareTunnelProvider.hasPort(preset.port)
+        ? "Port already in use"
+        : undefined,
+      preset,
+      buttons: [deleteButton],
+    })),
+  ];
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const settle = (value: TunnelPreset | "new" | null): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(value);
+    };
+
+    const quickPick = vscode.window.createQuickPick<PresetQuickPickItem>();
+    quickPick.title = "Create Cloudflare Tunnel";
+    quickPick.placeholder = "Select a preset or create a new tunnel";
+    quickPick.ignoreFocusOut = true;
+    quickPick.items = buildItems(presets);
+
+    quickPick.onDidTriggerItemButton((event) => {
+      if (!event.item.preset) {
+        return;
+      }
+      globalState
+        .removeTunnelPreset(event.item.preset)
+        .then(() => {
+          const remaining = globalState.tunnelPresets;
+          if (remaining.length === 0) {
+            quickPick.hide();
+            settle("new");
+            return;
+          }
+          quickPick.items = buildItems(remaining);
+        })
+        .catch((err) => {
+          showErrorMessage(err);
+          quickPick.hide();
+          settle(null);
+        });
+    });
+
+    quickPick.onDidAccept(() => {
+      const [selected] = quickPick.selectedItems;
+      quickPick.hide();
+      if (!selected) {
+        settle(null);
+        return;
+      }
+      if (selected.isNew) {
+        settle("new");
+        return;
+      }
+      settle(selected.preset ?? null);
+    });
+
+    quickPick.onDidHide(() => {
+      quickPick.dispose();
+      settle(null);
+    });
+
+    quickPick.show();
+  });
+}
+
 async function createTunnel(): Promise<void> {
-  const port = await getPortInput();
-  if (!port) {
+  const selection = await pickPreset();
+  if (selection === null) {
     return;
   }
-  const hostname = await getHostname();
+
+  let port: number;
+  let hostname: string | null;
+
+  if (selection === "new") {
+    const portInput = await getPortInput();
+    if (!portInput) {
+      return;
+    }
+    port = portInput;
+    hostname = await getHostname();
+  } else {
+    if (cloudflareTunnelProvider.hasPort(selection.port)) {
+      showErrorMessage(
+        Error(`Port ${selection.port} is already in use by a running tunnel.`)
+      );
+      return;
+    }
+    if (
+      selection.hostname &&
+      cloudflareTunnelProvider.hasHostname(selection.hostname)
+    ) {
+      showErrorMessage(
+        Error(
+          `Hostname ${selection.hostname} is already in use by a running tunnel.`
+        )
+      );
+      return;
+    }
+    port = selection.port;
+    hostname = selection.hostname;
+  }
 
   try {
     const tunnel = new CloudflareTunnel(config.localHostname, port, hostname);
@@ -110,6 +242,7 @@ async function createTunnel(): Promise<void> {
       );
 
       tunnel.status = CloudflareTunnelStatus.running;
+      await globalState.upsertTunnelPreset({ port, hostname });
 
       await showInformationMessage(
         "Your Cloudflare Tunnel has been created!",
