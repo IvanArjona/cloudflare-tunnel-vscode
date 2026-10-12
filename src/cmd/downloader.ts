@@ -83,6 +83,28 @@ export default class CloudflaredDownloader {
     }
 
     const fileName = await this.getCloudflaredFileName();
+    // Reuse a previously downloaded binary left in global storage
+    // (the globalState uri may be lost after reinstall/reload).
+    // This also lets the extension activate offline instead of
+    // failing when the download endpoint is unreachable.
+    try {
+      const storageDir = path.join(
+        this.context.globalStorageUri.fsPath,
+        "file-downloader-downloads"
+      );
+      const existingPath = path.join(storageDir, fileName);
+      if (
+        fs.existsSync(existingPath) &&
+        fs.statSync(existingPath).size > 1000000
+      ) {
+        uri = vscode.Uri.file(existingPath);
+        await this.setPermissions(uri);
+        globalState.cloudflaredUri = uri;
+        return uri;
+      }
+    } catch {
+      /* fall through to download */
+    }
     uri = await this.download(fileName);
     await this.setPermissions(uri);
     globalState.cloudflaredUri = uri;

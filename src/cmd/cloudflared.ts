@@ -137,10 +137,7 @@ export class CloudflaredClient extends ExecutableClient {
         const lines = strData.split("\n");
         lines.forEach((line: string) => {
           logger.error(line);
-          if (line.startsWith("You have an existing certificate")) {
-            emitter.emit("error", new Error(line));
-            emitter.emit("ended");
-          }
+          this.handleExistingCertificate(line, emitter);
         });
       });
 
@@ -149,6 +146,9 @@ export class CloudflaredClient extends ExecutableClient {
         const lines = strData.split("\n");
         lines.forEach((line: string) => {
           logger.info(line);
+          if (this.handleExistingCertificate(line, emitter)) {
+            return;
+          }
           if (line.includes(".cloudflare.com")) {
             const loginUrl = new URL(line);
             emitter.emit("loginUrl", loginUrl);
@@ -161,6 +161,32 @@ export class CloudflaredClient extends ExecutableClient {
         });
       });
     }
+  }
+
+  /**
+   * Recent cloudflared versions report an already-existing certificate
+   * on stderr (instead of stdout) and prefix the line with a timestamp
+   * and log level, e.g.:
+   *   2026-10-12T11:21:42Z ERR You have an existing certificate at
+   *   /home/user/.cloudflared/cert.pem which login would overwrite.
+   * Detect it on either stream and reuse the certificate so `login`
+   * resolves instead of hanging forever.
+   */
+  private handleExistingCertificate(
+    line: string,
+    emitter: EventEmitter
+  ): boolean {
+    if (line.includes("existing certificate")) {
+      const m = line.match(/\/\S+\.pem/);
+      if (m) {
+        emitter.emit("credentialsFile", m[0]);
+      } else {
+        emitter.emit("error", new Error(line));
+      }
+      emitter.emit("ended");
+      return true;
+    }
+    return false;
   }
 
   async logout(credentialsFile: string): Promise<void> {

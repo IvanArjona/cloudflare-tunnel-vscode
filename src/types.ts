@@ -11,3 +11,9 @@ export interface ConfigItem {
   key: string;
   default: string | number | boolean;
 }
+
+export interface TunnelPreset {
+  port: number;
+  hostname: string | null;
+  lastUsedAt: number;
+}
